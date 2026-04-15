@@ -2,3 +2,5 @@ velocity-runner/target/
 *.class
 .codex
 .DS_Store
+bundle-docs/xrechnung-3.0.2-bundle-*.zip
+bundle-docs/xrechnung-3.0.2-bundle-*/

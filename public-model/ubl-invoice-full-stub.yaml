@@ -143,9 +143,9 @@ xr:
       value: null
       schemeId: null
     # BT-46
-    identifiers:
-      - value: null
-        schemeId: null
+    identifier:
+      value: null
+      schemeId: null
     # BT-48
     vatIdentifier: null
     # BT-47
@@ -179,9 +179,9 @@ xr:
     # BT-59
     name: null
     # BT-60
-    identifiers:
-      - value: null
-        schemeId: null
+    identifier:
+      value: null
+      schemeId: null
     # BT-90 when represented on payee
     sepaCreditorId: null
     # BT-61
@@ -251,16 +251,16 @@ xr:
         name: null
         # BT-86
         bic: null
-    cards:
-      - # BT-87
-        primaryAccountNumberId: null
-        # BT-88
-        holderName: null
-    mandates:
-      - # BT-89
-        id: null
-        # BT-91
-        payerAccountId: null
+    card:
+      # BT-87
+      primaryAccountNumberId: null
+      # BT-88
+      holderName: null
+    mandate:
+      # BT-89
+      id: null
+      # BT-91
+      payerAccountId: null
 
   # BT-20
   paymentTerms:

@@ -1,18 +1,13 @@
 # Public Model Contract fuer `$xr`
 
-Diese Datei beschreibt den oeffentlichen Zwischenvertrag zwischen
+Oeffentliche Modellbeschreibung zwischen interner DTO-Aufbereitung und
+tolerantem Velocity-Rendering fuer `UBL Invoice`.
 
-- interner DTO-Aufbereitung und
-- dem draft-toleranten Velocity-Rendering fuer `UBL Invoice`.
+Dateien:
 
-Die vollstaendige Struktur steht in
-[ubl-invoice-full-stub.yaml](./ubl-invoice-full-stub.yaml).
-
-Eine kleinere Kernsicht steht in
-[ubl-invoice-core-stub.yaml](./ubl-invoice-core-stub.yaml).
-
-Die Core-Mapping-Beschreibung steht in
-[ubl-invoice-core-mapping.yaml](./ubl-invoice-core-mapping.yaml).
+- [ubl-invoice-full-stub.yaml](./ubl-invoice-full-stub.yaml)
+- [ubl-invoice-core-stub.yaml](./ubl-invoice-core-stub.yaml)
+- [ubl-invoice-core-mapping.yaml](./ubl-invoice-core-mapping.yaml)
 
 ## Ziel
 
@@ -20,7 +15,7 @@ Die Core-Mapping-Beschreibung steht in
 
 - nicht DTO-spezifisch
 - nicht direkt UBL-spezifisch
-- stabil genug fuer Template-Updates ohne Java-Code-Aenderung
+- stabil fuer Template-Updates ohne Java-Code-Aenderung
 
 ## Grundregeln
 
@@ -81,11 +76,11 @@ Die Core-Mapping-Beschreibung steht in
 | `contact object` | `name`, `phone`, `email` |
 | `tax object` | `categoryCode`, `rate`, optional `exemptionReason`, `exemptionReasonCode` |
 | `allowance/charge object` | `amount`, `baseAmount`, `percent`, `reason`, `reasonCode`, optional `tax` |
-| `attachment object` | `externalUri` oder `content` plus `mimeCode` und `filename` |
+| `attachment object` | optional `externalUri`, optional `content`, optional `mimeCode`, optional `filename` |
 | `classification object` | `code`, `listId`, optional `listVersionId` |
 | `item attribute object` | `name`, `value` |
 
-## Bewusste Modellentscheidungen
+## Modellform
 
 - `BT-8` steckt in `xr.invoicePeriod.descriptionCode`, obwohl es semantisch
   top-level definiert ist, weil es in UBL in dieselbe `cac:InvoicePeriod`
@@ -94,13 +89,17 @@ Die Core-Mapping-Beschreibung steht in
   weil UBL dafuer einen festen `DocumentTypeCode = 130` erwartet.
 - `BT-82` heisst im oeffentlichen Modell `payment.meansText`, obwohl es
   syntaktisch als `@name` an `cbc:PaymentMeansCode` haengt.
-- `BT-90` steckt bewusst nicht in `payment.mandates[]`, sondern bei Seller oder
-  Payee als `sepaCreditorId`, weil das dem UBL-Binding entspricht.
+- `BT-90` steht bei Seller oder Payee als `sepaCreditorId`, weil das dem
+  UBL-Binding entspricht.
+- `BT-29` bleibt als `seller.identifiers[]` wiederholbar; `BT-46` und `BT-60`
+  bleiben dagegen singulaer als `buyer.identifier` und `payee.identifier`.
+- `BT-46`, `BT-60`, `BG-18` und `BG-19` bleiben im oeffentlichen Modell
+  singulaer.
 - `BT-111` ist in `xr.totals.taxAmountInTaxCurrency` getrennt von
   `taxAmountInDocumentCurrency`, weil daraus in UBL zwei verschiedene
-  `cbc:TaxAmount`-Elemente entstehen koennen.
+  `cac:TaxTotal/cbc:TaxAmount`-Ausgaben entstehen koennen.
 
-## Was vor Velocity passieren sollte
+## Vor Velocity
 
 - Rundung und Skalierung von `amount`, `quantity`, `percentage`
 - Bildung von `totals`

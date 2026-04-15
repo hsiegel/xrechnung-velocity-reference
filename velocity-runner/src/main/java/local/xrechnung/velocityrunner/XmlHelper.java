@@ -20,24 +20,79 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 /**
- * Runtime helper for the public XRechnung Velocity templates.
+ * XML-oriented helper object for the public Velocity templates.
+ *
+ * <p>The templates treat this class as a small rendering API that covers three
+ * concerns: presence checks for optional values, XML-safe escaping for element
+ * and attribute content, and stable formatting for dates and decimal numbers.
+ *
+ * <p>The helper is intentionally generic. It does not know XRechnung business
+ * rules, does not calculate totals, and does not enforce required fields. Those
+ * decisions belong in the preparation step before rendering or in the later
+ * validator pass.
  */
-public final class XRechnungVelocityHelper {
+public final class XmlHelper {
+
+  public static final XmlHelper INSTANCE = new XmlHelper();
 
   private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
 
+  /**
+   * Decides whether a value should be treated as present by the templates.
+   *
+   * <p>This method drives all optional rendering. It returns {@code false} for
+   * {@code null}, blank strings, empty collections, empty arrays, and maps that
+   * recursively contain no renderable content. Numeric zero remains a present
+   * value. This allows the templates to omit empty structures while still
+   * rendering valid zero amounts, rates, or quantities.
+   *
+   * @param value candidate value from the public {@code $xr} model
+   * @return {@code true} if the value should render, otherwise {@code false}
+   */
   public boolean has(Object value) {
     return hasContent(value, Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>()));
   }
 
+  /**
+   * Escapes a value for use as XML element content.
+   *
+   * <p>The result is safe for text nodes and does not add business defaults.
+   * Missing values are converted to the empty string, although the templates
+   * normally guard such calls with {@link #has(Object)}.
+   *
+   * @param value raw value from the public model
+   * @return XML-safe element text
+   */
   public String text(Object value) {
     return escapeXml(stringValue(value), false);
   }
 
+  /**
+   * Escapes a value for use as an XML attribute value.
+   *
+   * <p>This is used for attributes such as {@code schemeID},
+   * {@code currencyID}, {@code unitCode}, {@code name}, or attachment
+   * metadata. The escaping rules are stricter than for element content because
+   * quotes must also be encoded.
+   *
+   * @param value raw value from the public model
+   * @return XML-safe attribute text
+   */
   public String attr(Object value) {
     return escapeXml(stringValue(value), true);
   }
 
+  /**
+   * Formats a value as an XML invoice date in ISO local date form.
+   *
+   * <p>The accepted output format is always {@code yyyy-MM-dd}. The helper
+   * accepts already normalized strings as well as common Java date/time types
+   * and collapses them to a plain local date without locale-specific output.
+   *
+   * @param value date-like value from the public model
+   * @return formatted date or the empty string for {@code null}
+   * @throws IllegalArgumentException if the value cannot be interpreted as a date
+   */
   public String date(Object value) {
     Object unwrapped = unwrap(value);
     if (unwrapped == null) {
@@ -69,10 +124,34 @@ public final class XRechnungVelocityHelper {
     throw new IllegalArgumentException("Unsupported date type: " + unwrapped.getClass().getName());
   }
 
+  /**
+   * Formats a monetary amount for XML output.
+   *
+   * <p>The method emits a plain decimal representation with {@code .} as the
+   * decimal separator, without grouping separators and without scientific
+   * notation. Rounding is intentionally not performed here; amounts should be
+   * prepared before rendering.
+   *
+   * @param value amount-like value from the public model
+   * @return plain decimal text or the empty string for {@code null}
+   * @throws IllegalArgumentException if the value cannot be represented as a decimal
+   */
   public String amount(Object value) {
     return decimal(value);
   }
 
+  /**
+   * Formats a non-monetary decimal number for XML output.
+   *
+   * <p>This is used for quantities, percentages, and similar numeric values.
+   * The formatting rules intentionally mirror {@link #amount(Object)} so the
+   * templates get consistent decimal output regardless of the business meaning
+   * of the number.
+   *
+   * @param value numeric value from the public model
+   * @return plain decimal text or the empty string for {@code null}
+   * @throws IllegalArgumentException if the value cannot be represented as a decimal
+   */
   public String number(Object value) {
     return decimal(value);
   }
@@ -92,15 +171,15 @@ public final class XRechnungVelocityHelper {
     }
     if (current instanceof OptionalInt) {
       OptionalInt optional = (OptionalInt) current;
-      return optional.isPresent() ? optional.getAsInt() : null;
+      return optional.isPresent() ? Integer.valueOf(optional.getAsInt()) : null;
     }
     if (current instanceof OptionalLong) {
       OptionalLong optional = (OptionalLong) current;
-      return optional.isPresent() ? optional.getAsLong() : null;
+      return optional.isPresent() ? Long.valueOf(optional.getAsLong()) : null;
     }
     if (current instanceof OptionalDouble) {
       OptionalDouble optional = (OptionalDouble) current;
-      return optional.isPresent() ? optional.getAsDouble() : null;
+      return optional.isPresent() ? Double.valueOf(optional.getAsDouble()) : null;
     }
     return current;
   }
@@ -214,7 +293,8 @@ public final class XRechnungVelocityHelper {
       i += Character.charCount(codePoint);
 
       if (!isValidXml10CodePoint(codePoint)) {
-        throw new IllegalArgumentException(String.format("Invalid XML 1.0 character: U+%04X", codePoint));
+        throw new IllegalArgumentException(
+            String.format("Invalid XML 1.0 character: U+%04X", Integer.valueOf(codePoint)));
       }
 
       switch (codePoint) {

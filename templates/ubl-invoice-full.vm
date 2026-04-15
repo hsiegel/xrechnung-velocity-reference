@@ -1,82 +1,54 @@
-#*
-  Composed draft invoice template.
-
-  This file shows the intended long-term shape of an invoice template:
-  a thin document shell plus embedded reusable macros in a single uploadable file.
-
-  Scope:
-  - UBL Invoice
-  - XRechnung 3.0.2 semantic block tree
-  - draft-tolerant rendering, not final business validation
-  - self-contained: no external #parse dependency at runtime
-*#
-
-#*
-  Embedded macro set derived from templates/ubl-pattern-library.vm.
-
-  Assumptions:
-  - Root model object is named $xr
-  - Helper object is named $xrh
-  - $xrh.has(value) treats numeric zero as present and blank strings as absent
-*#
-
 #macro(xrText $tag $value)
-#if($xrh.has($value))
-<$tag>$xrh.text($value)</$tag>
+#if($xml.has($value))
+<$tag>$xml.text($value)</$tag>
 #end
 #end
 
 #macro(xrDate $tag $value)
-#if($xrh.has($value))
-<$tag>$xrh.date($value)</$tag>
+#if($xml.has($value))
+<$tag>$xml.date($value)</$tag>
 #end
 #end
 
 #macro(xrNumber $tag $value)
-#if($xrh.has($value))
-<$tag>$xrh.number($value)</$tag>
-#end
-#end
-
-#macro(xrNamedCode $tag $value $nameValue)
-#if($xrh.has($value))
-<$tag#if($xrh.has($nameValue)) name="$xrh.attr($nameValue)"#end>$xrh.text($value)</$tag>
+#if($xml.has($value))
+<$tag>$xml.number($value)</$tag>
 #end
 #end
 
 #macro(xrAmount $tag $value $currency)
-#if($xrh.has($value))
-<$tag#if($xrh.has($currency)) currencyID="$xrh.attr($currency)"#end>$xrh.amount($value)</$tag>
+#if($xml.has($value))
+<$tag#if($xml.has($currency)) currencyID="$xml.attr($currency)"#end>$xml.amount($value)</$tag>
 #end
 #end
 
 #macro(xrQuantity $tag $value $unitCode)
-#if($xrh.has($value))
-<$tag#if($xrh.has($unitCode)) unitCode="$xrh.attr($unitCode)"#end>$xrh.number($value)</$tag>
+#if($xml.has($value))
+<$tag#if($xml.has($unitCode)) unitCode="$xml.attr($unitCode)"#end>$xml.number($value)</$tag>
 #end
 #end
 
 #macro(xrIdentifier $tag $value $schemeId)
-#if($xrh.has($value))
-<$tag#if($xrh.has($schemeId)) schemeID="$xrh.attr($schemeId)"#end>$xrh.text($value)</$tag>
+#if($xml.has($value))
+<$tag#if($xml.has($schemeId)) schemeID="$xml.attr($schemeId)"#end>$xml.text($value)</$tag>
 #end
 #end
 
 #macro(xrNote $tag $note)
 #set($xrNoteText = $note.text)
 #set($xrSubjectCode = $note.subjectCode)
-#if($xrh.has($xrNoteText))
-  #if($xrh.has($xrSubjectCode))
+#if($xml.has($xrNoteText))
+  #if($xml.has($xrSubjectCode))
     #set($xrHash = '#')
-<$tag>$xrHash$xrh.text($xrSubjectCode)$xrHash$xrh.text($xrNoteText)</$tag>
+<$tag>$xrHash$xml.text($xrSubjectCode)$xrHash$xml.text($xrNoteText)</$tag>
   #else
-<$tag>$xrh.text($xrNoteText)</$tag>
+<$tag>$xml.text($xrNoteText)</$tag>
   #end
 #end
 #end
 
 #macro(xrProjectReference $projectReferenceId)
-#if($xrh.has($projectReferenceId))
+#if($xml.has($projectReferenceId))
 <cac:ProjectReference>
   #xrText("cbc:ID" $projectReferenceId)
 </cac:ProjectReference>
@@ -84,7 +56,7 @@
 #end
 
 #macro(xrDocumentReference $wrapperTag $id)
-#if($xrh.has($id))
+#if($xml.has($id))
 <$wrapperTag>
   #xrText("cbc:ID" $id)
 </$wrapperTag>
@@ -92,7 +64,7 @@
 #end
 
 #macro(xrOrderReference $ref)
-#set($xrHasOrderReference = $xrh.has($ref.id) || $xrh.has($ref.salesOrderId))
+#set($xrHasOrderReference = $xml.has($ref.id) || $xml.has($ref.salesOrderId))
 #if($xrHasOrderReference)
 <cac:OrderReference>
   #xrText("cbc:ID" $ref.id)
@@ -102,7 +74,7 @@
 #end
 
 #macro(xrBillingReference $ref)
-#set($xrHasBillingReference = $xrh.has($ref.id) || $xrh.has($ref.issueDate))
+#set($xrHasBillingReference = $xml.has($ref.id) || $xml.has($ref.issueDate))
 #if($xrHasBillingReference)
 <cac:BillingReference>
   <cac:InvoiceDocumentReference>
@@ -114,7 +86,7 @@
 #end
 
 #macro(xrInvoicedObjectReference $ref)
-#set($xrHasObjectReference = $xrh.has($ref.id))
+#set($xrHasObjectReference = $xml.has($ref.id))
 #if($xrHasObjectReference)
 <cac:AdditionalDocumentReference>
   #xrIdentifier("cbc:ID" $ref.id $ref.schemeId)
@@ -123,18 +95,8 @@
 #end
 #end
 
-#macro(xrLineObjectReference $ref)
-#set($xrHasLineObjectReference = $xrh.has($ref.id))
-#if($xrHasLineObjectReference)
-<cac:DocumentReference>
-  #xrIdentifier("cbc:ID" $ref.id $ref.schemeId)
-  <cbc:DocumentTypeCode>130</cbc:DocumentTypeCode>
-</cac:DocumentReference>
-#end
-#end
-
 #macro(xrInvoicePeriod $period)
-#set($xrHasPeriod = $xrh.has($period.startDate) || $xrh.has($period.endDate) || $xrh.has($period.descriptionCode))
+#set($xrHasPeriod = $xml.has($period.startDate) || $xml.has($period.endDate) || $xml.has($period.descriptionCode))
 #if($xrHasPeriod)
 <cac:InvoicePeriod>
   #xrDate("cbc:StartDate" $period.startDate)
@@ -146,10 +108,10 @@
 
 #macro(xrAddress $wrapperTag $address)
 #set($xrAddressLine = "")
-#if($xrh.has($address.addressLine))
+#if($xml.has($address.addressLine))
   #set($xrAddressLine = $address.addressLine)
 #end
-#set($xrHasAddress = $xrh.has($address.street) || $xrh.has($address.additionalStreet) || $xrh.has($xrAddressLine) || $xrh.has($address.city) || $xrh.has($address.postalCode) || $xrh.has($address.countrySubdivision) || $xrh.has($address.countryCode))
+#set($xrHasAddress = $xml.has($address.street) || $xml.has($address.additionalStreet) || $xml.has($xrAddressLine) || $xml.has($address.city) || $xml.has($address.postalCode) || $xml.has($address.countrySubdivision) || $xml.has($address.countryCode))
 #if($xrHasAddress)
 <$wrapperTag>
   #xrText("cbc:StreetName" $address.street)
@@ -157,12 +119,12 @@
   #xrText("cbc:CityName" $address.city)
   #xrText("cbc:PostalZone" $address.postalCode)
   #xrText("cbc:CountrySubentity" $address.countrySubdivision)
-  #if($xrh.has($xrAddressLine))
+  #if($xml.has($xrAddressLine))
   <cac:AddressLine>
     #xrText("cbc:Line" $xrAddressLine)
   </cac:AddressLine>
   #end
-  #if($xrh.has($address.countryCode))
+  #if($xml.has($address.countryCode))
   <cac:Country>
     #xrText("cbc:IdentificationCode" $address.countryCode)
   </cac:Country>
@@ -175,39 +137,38 @@
 #xrAddress("cac:PostalAddress" $address)
 #end
 
-#macro(xrContact $contact)
-#set($xrHasContact = $xrh.has($contact.name) || $xrh.has($contact.phone) || $xrh.has($contact.email))
-#if($xrHasContact)
-<cac:Contact>
-  #xrText("cbc:Name" $contact.name)
-  #xrText("cbc:Telephone" $contact.phone)
-  #xrText("cbc:ElectronicMail" $contact.email)
-</cac:Contact>
-#end
-#end
-
 #macro(xrNestedParty $wrapperTag $party)
-#set($xrHasParty = $xrh.has($party.name) || $xrh.has($party.tradeName) || $xrh.has($party.endpoint.value) || $xrh.has($party.identifiers) || $xrh.has($party.sepaCreditorId) || $xrh.has($party.vatIdentifier) || $xrh.has($party.taxIdentifier) || $xrh.has($party.legalRegistrationId) || $xrh.has($party.legalForm) || $xrh.has($party.address) || $xrh.has($party.contact))
+#set($xrHasParty = $xml.has($party.name) || $xml.has($party.tradeName) || $xml.has($party.endpoint.value) || $xml.has($party.identifier) || $xml.has($party.identifiers) || $xml.has($party.sepaCreditorId) || $xml.has($party.vatIdentifier) || $xml.has($party.taxIdentifier) || $xml.has($party.legalRegistrationId) || $xml.has($party.legalForm) || $xml.has($party.address) || $xml.has($party.contact))
 #if($xrHasParty)
 <$wrapperTag>
   <cac:Party>
     #xrIdentifier("cbc:EndpointID" $party.endpoint.value $party.endpoint.schemeId)
-    #if($xrh.has($party.sepaCreditorId))
+    #if($xml.has($party.sepaCreditorId))
     <cac:PartyIdentification>
-      <cbc:ID schemeID="SEPA">$xrh.text($party.sepaCreditorId)</cbc:ID>
+      <cbc:ID schemeID="SEPA">$xml.text($party.sepaCreditorId)</cbc:ID>
     </cac:PartyIdentification>
     #end
-    #if($xrh.has($party.identifiers))
+    #if($xml.has($party.identifier.value))
+    <cac:PartyIdentification>
+      #xrIdentifier("cbc:ID" $party.identifier.value $party.identifier.schemeId)
+    </cac:PartyIdentification>
+    #end
+    #if($xml.has($party.identifiers))
       #foreach($identifier in $party.identifiers)
-        #if($xrh.has($identifier.value))
+        #if($xml.has($identifier.value))
     <cac:PartyIdentification>
       #xrIdentifier("cbc:ID" $identifier.value $identifier.schemeId)
     </cac:PartyIdentification>
         #end
       #end
     #end
+    #if($xml.has($party.tradeName))
+    <cac:PartyName>
+      #xrText("cbc:Name" $party.tradeName)
+    </cac:PartyName>
+    #end
     #xrPostalAddress($party.address)
-    #if($xrh.has($party.vatIdentifier))
+    #if($xml.has($party.vatIdentifier))
     <cac:PartyTaxScheme>
       #xrText("cbc:CompanyID" $party.vatIdentifier)
       <cac:TaxScheme>
@@ -215,7 +176,7 @@
       </cac:TaxScheme>
     </cac:PartyTaxScheme>
     #end
-    #if($xrh.has($party.taxIdentifier))
+    #if($xml.has($party.taxIdentifier))
     <cac:PartyTaxScheme>
       #xrText("cbc:CompanyID" $party.taxIdentifier)
       <cac:TaxScheme>
@@ -223,48 +184,47 @@
       </cac:TaxScheme>
     </cac:PartyTaxScheme>
     #end
-    #if($xrh.has($party.tradeName))
-    <cac:PartyName>
-      #xrText("cbc:Name" $party.tradeName)
-    </cac:PartyName>
-    #end
-    #if($xrh.has($party.name) || $xrh.has($party.legalRegistrationId) || $xrh.has($party.legalForm))
+    #if($xml.has($party.name) || $xml.has($party.legalRegistrationId) || $xml.has($party.legalForm))
     <cac:PartyLegalEntity>
       #xrText("cbc:RegistrationName" $party.name)
       #xrIdentifier("cbc:CompanyID" $party.legalRegistrationId $party.legalRegistrationIdSchemeId)
       #xrText("cbc:CompanyLegalForm" $party.legalForm)
     </cac:PartyLegalEntity>
     #end
-    #xrContact($party.contact)
+    #set($xrHasContact = $xml.has($party.contact.name) || $xml.has($party.contact.phone) || $xml.has($party.contact.email))
+    #if($xrHasContact)
+    <cac:Contact>
+      #xrText("cbc:Name" $party.contact.name)
+      #xrText("cbc:Telephone" $party.contact.phone)
+      #xrText("cbc:ElectronicMail" $party.contact.email)
+    </cac:Contact>
+    #end
   </cac:Party>
 </$wrapperTag>
 #end
 #end
 
 #macro(xrFlatParty $wrapperTag $party)
-#set($xrHasFlatParty = $xrh.has($party.name) || $xrh.has($party.identifiers) || $xrh.has($party.sepaCreditorId) || $xrh.has($party.vatIdentifier) || $xrh.has($party.legalRegistrationId) || $xrh.has($party.address))
+#set($xrHasFlatParty = $xml.has($party.name) || $xml.has($party.identifier) || $xml.has($party.sepaCreditorId) || $xml.has($party.vatIdentifier) || $xml.has($party.legalRegistrationId) || $xml.has($party.address))
 #if($xrHasFlatParty)
 <$wrapperTag>
-  #if($xrh.has($party.name))
+  #if($xml.has($party.sepaCreditorId))
+  <cac:PartyIdentification>
+    <cbc:ID schemeID="SEPA">$xml.text($party.sepaCreditorId)</cbc:ID>
+  </cac:PartyIdentification>
+  #end
+  #if($xml.has($party.identifier.value))
+  <cac:PartyIdentification>
+    #xrIdentifier("cbc:ID" $party.identifier.value $party.identifier.schemeId)
+  </cac:PartyIdentification>
+  #end
+  #if($xml.has($party.name))
   <cac:PartyName>
     #xrText("cbc:Name" $party.name)
   </cac:PartyName>
   #end
-  #if($xrh.has($party.sepaCreditorId))
-  <cac:PartyIdentification>
-    <cbc:ID schemeID="SEPA">$xrh.text($party.sepaCreditorId)</cbc:ID>
-  </cac:PartyIdentification>
-  #end
-  #if($xrh.has($party.identifiers))
-    #foreach($identifier in $party.identifiers)
-      #if($xrh.has($identifier.value))
-  <cac:PartyIdentification>
-    #xrIdentifier("cbc:ID" $identifier.value $identifier.schemeId)
-  </cac:PartyIdentification>
-      #end
-    #end
-  #end
-  #if($xrh.has($party.vatIdentifier))
+  #xrPostalAddress($party.address)
+  #if($xml.has($party.vatIdentifier))
   <cac:PartyTaxScheme>
     #xrText("cbc:CompanyID" $party.vatIdentifier)
     <cac:TaxScheme>
@@ -272,64 +232,60 @@
     </cac:TaxScheme>
   </cac:PartyTaxScheme>
   #end
-  #if($xrh.has($party.legalRegistrationId))
+  #if($xml.has($party.legalRegistrationId))
   <cac:PartyLegalEntity>
     #xrIdentifier("cbc:CompanyID" $party.legalRegistrationId $party.legalRegistrationIdSchemeId)
   </cac:PartyLegalEntity>
   #end
-  #xrPostalAddress($party.address)
 </$wrapperTag>
 #end
 #end
 
 #macro(xrDelivery $delivery)
-#set($xrHasDelivery = $xrh.has($delivery.partyName) || $xrh.has($delivery.location.id) || $xrh.has($delivery.actualDate) || $xrh.has($delivery.address))
+#set($xrHasDelivery = $xml.has($delivery.partyName) || $xml.has($delivery.location.id) || $xml.has($delivery.actualDate) || $xml.has($delivery.address))
 #if($xrHasDelivery)
 <cac:Delivery>
   #xrDate("cbc:ActualDeliveryDate" $delivery.actualDate)
-  #if($xrh.has($delivery.partyName))
+  #if($xml.has($delivery.location.id) || $xml.has($delivery.address))
+  <cac:DeliveryLocation>
+    #xrIdentifier("cbc:ID" $delivery.location.id $delivery.location.schemeId)
+    #xrAddress("cac:Address" $delivery.address)
+  </cac:DeliveryLocation>
+  #end
+  #if($xml.has($delivery.partyName))
   <cac:DeliveryParty>
     <cac:PartyName>
       #xrText("cbc:Name" $delivery.partyName)
     </cac:PartyName>
   </cac:DeliveryParty>
   #end
-  #if($xrh.has($delivery.location.id) || $xrh.has($delivery.address))
-  <cac:DeliveryLocation>
-    #xrIdentifier("cbc:ID" $delivery.location.id $delivery.location.schemeId)
-    #xrAddress("cac:Address" $delivery.address)
-  </cac:DeliveryLocation>
-  #end
 </cac:Delivery>
 #end
 #end
 
-#macro(xrReference $wrapperTag $ref)
-#set($xrHasReference = $xrh.has($ref.id) || $xrh.has($ref.issueDate) || $xrh.has($ref.salesOrderId) || $xrh.has($ref.lineId) || $xrh.has($ref.documentTypeCode))
-#if($xrHasReference)
-<$wrapperTag>
-  #xrIdentifier("cbc:ID" $ref.id $ref.schemeId)
-  #xrDate("cbc:IssueDate" $ref.issueDate)
-  #xrText("cbc:SalesOrderID" $ref.salesOrderId)
-  #xrText("cbc:LineID" $ref.lineId)
-  #xrText("cbc:DocumentTypeCode" $ref.documentTypeCode)
-</$wrapperTag>
-#end
-#end
-
 #macro(xrPaymentMeans $payment)
-#set($xrHasPayment = $xrh.has($payment.meansCode) || $xrh.has($payment.meansText) || $xrh.has($payment.paymentId) || $xrh.has($payment.payeeAccounts) || $xrh.has($payment.cards) || $xrh.has($payment.mandates))
+#set($xrHasPayment = $xml.has($payment.meansCode) || $xml.has($payment.meansText) || $xml.has($payment.paymentId) || $xml.has($payment.payeeAccounts) || $xml.has($payment.card) || $xml.has($payment.mandate))
 #if($xrHasPayment)
 <cac:PaymentMeans>
-  #xrNamedCode("cbc:PaymentMeansCode" $payment.meansCode $payment.meansText)
+  #if($xml.has($payment.meansCode))
+  <cbc:PaymentMeansCode#if($xml.has($payment.meansText)) name="$xml.attr($payment.meansText)"#end>$xml.text($payment.meansCode)</cbc:PaymentMeansCode>
+  #end
   #xrText("cbc:PaymentID" $payment.paymentId)
-  #if($xrh.has($payment.payeeAccounts))
+  #if($xml.has($payment.card))
+    #if($xml.has($payment.card.primaryAccountNumberId) || $xml.has($payment.card.holderName))
+  <cac:CardAccount>
+    #xrText("cbc:PrimaryAccountNumberID" $payment.card.primaryAccountNumberId)
+    #xrText("cbc:HolderName" $payment.card.holderName)
+  </cac:CardAccount>
+    #end
+  #end
+  #if($xml.has($payment.payeeAccounts))
     #foreach($account in $payment.payeeAccounts)
-      #if($xrh.has($account.id) || $xrh.has($account.name) || $xrh.has($account.bic))
+      #if($xml.has($account.id) || $xml.has($account.name) || $xml.has($account.bic))
   <cac:PayeeFinancialAccount>
     #xrText("cbc:ID" $account.id)
     #xrText("cbc:Name" $account.name)
-    #if($xrh.has($account.bic))
+    #if($xml.has($account.bic))
     <cac:FinancialInstitutionBranch>
       #xrText("cbc:ID" $account.bic)
     </cac:FinancialInstitutionBranch>
@@ -338,28 +294,16 @@
       #end
     #end
   #end
-  #if($xrh.has($payment.cards))
-    #foreach($card in $payment.cards)
-      #if($xrh.has($card.primaryAccountNumberId) || $xrh.has($card.holderName))
-  <cac:CardAccount>
-    #xrText("cbc:PrimaryAccountNumberID" $card.primaryAccountNumberId)
-    #xrText("cbc:HolderName" $card.holderName)
-  </cac:CardAccount>
-      #end
-    #end
-  #end
-  #if($xrh.has($payment.mandates))
-    #foreach($mandate in $payment.mandates)
-      #if($xrh.has($mandate.id) || $xrh.has($mandate.payerAccountId))
+  #if($xml.has($payment.mandate))
+    #if($xml.has($payment.mandate.id) || $xml.has($payment.mandate.payerAccountId))
   <cac:PaymentMandate>
-    #xrText("cbc:ID" $mandate.id)
-    #if($xrh.has($mandate.payerAccountId))
+    #xrText("cbc:ID" $payment.mandate.id)
+    #if($xml.has($payment.mandate.payerAccountId))
     <cac:PayerFinancialAccount>
-      #xrText("cbc:ID" $mandate.payerAccountId)
+      #xrText("cbc:ID" $payment.mandate.payerAccountId)
     </cac:PayerFinancialAccount>
     #end
   </cac:PaymentMandate>
-      #end
     #end
   #end
 </cac:PaymentMeans>
@@ -367,7 +311,7 @@
 #end
 
 #macro(xrPaymentTerms $terms)
-#if($xrh.has($terms.note))
+#if($xml.has($terms.note))
 <cac:PaymentTerms>
   #xrText("cbc:Note" $terms.note)
 </cac:PaymentTerms>
@@ -375,7 +319,7 @@
 #end
 
 #macro(xrTaxCategory $wrapperTag $tax)
-#set($xrHasTax = $xrh.has($tax.categoryCode) || $xrh.has($tax.rate) || $xrh.has($tax.exemptionReason) || $xrh.has($tax.exemptionReasonCode))
+#set($xrHasTax = $xml.has($tax.categoryCode) || $xml.has($tax.rate) || $xml.has($tax.exemptionReason) || $xml.has($tax.exemptionReasonCode))
 #if($xrHasTax)
 <$wrapperTag>
   #xrText("cbc:ID" $tax.categoryCode)
@@ -390,54 +334,56 @@
 #end
 
 #macro(xrAllowanceCharge $entry $chargeIndicator $currency)
-#set($xrHasAllowance = $xrh.has($entry.amount) || $xrh.has($entry.baseAmount) || $xrh.has($entry.percent) || $xrh.has($entry.reason) || $xrh.has($entry.reasonCode) || $xrh.has($entry.tax))
+#set($xrHasAllowance = $xml.has($entry.amount) || $xml.has($entry.baseAmount) || $xml.has($entry.percent) || $xml.has($entry.reason) || $xml.has($entry.reasonCode) || $xml.has($entry.tax))
 #if($xrHasAllowance)
 <cac:AllowanceCharge>
   <cbc:ChargeIndicator>$chargeIndicator</cbc:ChargeIndicator>
+  #xrText("cbc:AllowanceChargeReasonCode" $entry.reasonCode)
+  #xrText("cbc:AllowanceChargeReason" $entry.reason)
+  #xrNumber("cbc:MultiplierFactorNumeric" $entry.percent)
   #xrAmount("cbc:Amount" $entry.amount $currency)
   #xrAmount("cbc:BaseAmount" $entry.baseAmount $currency)
-  #xrNumber("cbc:MultiplierFactorNumeric" $entry.percent)
-  #xrText("cbc:AllowanceChargeReason" $entry.reason)
-  #xrText("cbc:AllowanceChargeReasonCode" $entry.reasonCode)
   #xrTaxCategory("cac:TaxCategory" $entry.tax)
 </cac:AllowanceCharge>
 #end
 #end
 
-#macro(xrTaxSubtotal $vat $currency)
-#set($xrHasTaxSubtotal = $xrh.has($vat.taxableAmount) || $xrh.has($vat.taxAmount) || $xrh.has($vat.categoryCode) || $xrh.has($vat.rate) || $xrh.has($vat.exemptionReason) || $xrh.has($vat.exemptionReasonCode))
-#if($xrHasTaxSubtotal)
-<cac:TaxSubtotal>
-  #xrAmount("cbc:TaxableAmount" $vat.taxableAmount $currency)
-  #xrAmount("cbc:TaxAmount" $vat.taxAmount $currency)
-  #xrTaxCategory("cac:TaxCategory" $vat)
-</cac:TaxSubtotal>
-#end
-#end
-
 #macro(xrTaxTotal $documentTaxAmount $accountingTaxAmount $vatBreakdowns $documentCurrency $taxCurrency)
-#if($xrh.has($documentTaxAmount) || $xrh.has($accountingTaxAmount) || $xrh.has($vatBreakdowns))
+#set($xrHasDocumentTaxTotal = $xml.has($documentTaxAmount) || $xml.has($vatBreakdowns))
+#set($xrHasAccountingTaxTotal = $xml.has($accountingTaxAmount) && $xml.has($taxCurrency) && (!$xml.has($documentCurrency) || $taxCurrency != $documentCurrency))
+#if($xrHasDocumentTaxTotal)
 <cac:TaxTotal>
   #xrAmount("cbc:TaxAmount" $documentTaxAmount $documentCurrency)
-  #xrAmount("cbc:TaxAmount" $accountingTaxAmount $taxCurrency)
-  #if($xrh.has($vatBreakdowns))
+  #if($xml.has($vatBreakdowns))
     #foreach($vat in $vatBreakdowns)
-      #xrTaxSubtotal($vat $documentCurrency)
+      #set($xrHasTaxSubtotal = $xml.has($vat.taxableAmount) || $xml.has($vat.taxAmount) || $xml.has($vat.categoryCode) || $xml.has($vat.rate) || $xml.has($vat.exemptionReason) || $xml.has($vat.exemptionReasonCode))
+      #if($xrHasTaxSubtotal)
+  <cac:TaxSubtotal>
+    #xrAmount("cbc:TaxableAmount" $vat.taxableAmount $documentCurrency)
+    #xrAmount("cbc:TaxAmount" $vat.taxAmount $documentCurrency)
+    #xrTaxCategory("cac:TaxCategory" $vat)
+  </cac:TaxSubtotal>
+      #end
     #end
   #end
+</cac:TaxTotal>
+#end
+#if($xrHasAccountingTaxTotal)
+<cac:TaxTotal>
+  #xrAmount("cbc:TaxAmount" $accountingTaxAmount $taxCurrency)
 </cac:TaxTotal>
 #end
 #end
 
 #macro(xrMonetaryTotal $totals $currency)
-#set($xrHasMonetaryTotal = $xrh.has($totals.lineExtensionAmount) || $xrh.has($totals.allowanceTotalAmount) || $xrh.has($totals.chargeTotalAmount) || $xrh.has($totals.taxExclusiveAmount) || $xrh.has($totals.taxInclusiveAmount) || $xrh.has($totals.prepaidAmount) || $xrh.has($totals.payableRoundingAmount) || $xrh.has($totals.payableAmount))
+#set($xrHasMonetaryTotal = $xml.has($totals.lineExtensionAmount) || $xml.has($totals.allowanceTotalAmount) || $xml.has($totals.chargeTotalAmount) || $xml.has($totals.taxExclusiveAmount) || $xml.has($totals.taxInclusiveAmount) || $xml.has($totals.prepaidAmount) || $xml.has($totals.payableRoundingAmount) || $xml.has($totals.payableAmount))
 #if($xrHasMonetaryTotal)
 <cac:LegalMonetaryTotal>
   #xrAmount("cbc:LineExtensionAmount" $totals.lineExtensionAmount $currency)
-  #xrAmount("cbc:AllowanceTotalAmount" $totals.allowanceTotalAmount $currency)
-  #xrAmount("cbc:ChargeTotalAmount" $totals.chargeTotalAmount $currency)
   #xrAmount("cbc:TaxExclusiveAmount" $totals.taxExclusiveAmount $currency)
   #xrAmount("cbc:TaxInclusiveAmount" $totals.taxInclusiveAmount $currency)
+  #xrAmount("cbc:AllowanceTotalAmount" $totals.allowanceTotalAmount $currency)
+  #xrAmount("cbc:ChargeTotalAmount" $totals.chargeTotalAmount $currency)
   #xrAmount("cbc:PrepaidAmount" $totals.prepaidAmount $currency)
   #xrAmount("cbc:PayableRoundingAmount" $totals.payableRoundingAmount $currency)
   #xrAmount("cbc:PayableAmount" $totals.payableAmount $currency)
@@ -445,91 +391,85 @@
 #end
 #end
 
-#macro(xrEmbeddedAttachment $embedded)
-#if($xrh.has($embedded.content))
-<cac:Attachment>
-  <cbc:EmbeddedDocumentBinaryObject#if($xrh.has($embedded.mimeCode)) mimeCode="$xrh.attr($embedded.mimeCode)"#end#if($xrh.has($embedded.filename)) filename="$xrh.attr($embedded.filename)"#end>$xrh.text($embedded.content)</cbc:EmbeddedDocumentBinaryObject>
-</cac:Attachment>
-#elseif($xrh.has($embedded.externalUri))
-<cac:Attachment>
-  <cac:ExternalReference>
-    #xrText("cbc:URI" $embedded.externalUri)
-  </cac:ExternalReference>
-</cac:Attachment>
-#end
-#end
-
 #macro(xrAdditionalDocumentReference $doc)
-#set($xrHasDoc = $xrh.has($doc.id) || $xrh.has($doc.description) || $xrh.has($doc.embedded.content) || $xrh.has($doc.embedded.externalUri))
+#set($xrHasDoc = $xml.has($doc.id) || $xml.has($doc.description) || $xml.has($doc.embedded.content) || $xml.has($doc.embedded.externalUri))
 #if($xrHasDoc)
 <cac:AdditionalDocumentReference>
   #xrText("cbc:ID" $doc.id)
   #xrText("cbc:DocumentDescription" $doc.description)
-  #xrEmbeddedAttachment($doc.embedded)
+  #if($xml.has($doc.embedded.content) || $xml.has($doc.embedded.externalUri))
+  <cac:Attachment>
+    #if($xml.has($doc.embedded.content))
+    <cbc:EmbeddedDocumentBinaryObject#if($xml.has($doc.embedded.mimeCode)) mimeCode="$xml.attr($doc.embedded.mimeCode)"#end#if($xml.has($doc.embedded.filename)) filename="$xml.attr($doc.embedded.filename)"#end>$xml.text($doc.embedded.content)</cbc:EmbeddedDocumentBinaryObject>
+    #end
+    #if($xml.has($doc.embedded.externalUri))
+    <cac:ExternalReference>
+      #xrText("cbc:URI" $doc.embedded.externalUri)
+    </cac:ExternalReference>
+    #end
+  </cac:Attachment>
+  #end
 </cac:AdditionalDocumentReference>
 #end
 #end
 
-#macro(xrPriceDiscount $discount $currency)
-#set($xrHasPriceDiscount = $xrh.has($discount.amount) || $xrh.has($discount.baseAmount))
-#if($xrHasPriceDiscount)
-<cac:AllowanceCharge>
-  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
-  #xrAmount("cbc:Amount" $discount.amount $currency)
-  #xrAmount("cbc:BaseAmount" $discount.baseAmount $currency)
-</cac:AllowanceCharge>
-#end
-#end
-
 #macro(xrPrice $price $currency)
-#set($xrHasPrice = $xrh.has($price.netAmount) || $xrh.has($price.discount) || $xrh.has($price.baseQuantity))
+#set($xrHasPrice = $xml.has($price.netAmount) || $xml.has($price.discount) || $xml.has($price.baseQuantity))
 #if($xrHasPrice)
 <cac:Price>
   #xrAmount("cbc:PriceAmount" $price.netAmount $currency)
-  #xrPriceDiscount($price.discount $currency)
   #xrQuantity("cbc:BaseQuantity" $price.baseQuantity $price.baseQuantityUnitCode)
+  #set($xrHasPriceDiscount = $xml.has($price.discount.amount) || $xml.has($price.discount.baseAmount))
+  #if($xrHasPriceDiscount)
+  <cac:AllowanceCharge>
+    <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+    #xrAmount("cbc:Amount" $price.discount.amount $currency)
+    #xrAmount("cbc:BaseAmount" $price.discount.baseAmount $currency)
+  </cac:AllowanceCharge>
+  #end
 </cac:Price>
 #end
 #end
 
 #macro(xrItem $item $tax)
-#set($xrHasItem = $xrh.has($item.description) || $xrh.has($item.name) || $xrh.has($item.sellersItemId) || $xrh.has($item.buyersItemId) || $xrh.has($item.standardId) || $xrh.has($item.classifications) || $xrh.has($item.originCountryCode) || $xrh.has($item.attributes) || $xrh.has($tax))
+#set($xrHasItem = $xml.has($item.description) || $xml.has($item.name) || $xml.has($item.sellersItemId) || $xml.has($item.buyersItemId) || $xml.has($item.standardId) || $xml.has($item.classifications) || $xml.has($item.originCountryCode) || $xml.has($item.attributes) || $xml.has($tax))
 #if($xrHasItem)
 <cac:Item>
   #xrText("cbc:Description" $item.description)
   #xrText("cbc:Name" $item.name)
-  #if($xrh.has($item.sellersItemId))
-  <cac:SellersItemIdentification>
-    #xrText("cbc:ID" $item.sellersItemId)
-  </cac:SellersItemIdentification>
-  #end
-  #if($xrh.has($item.buyersItemId))
+  #if($xml.has($item.buyersItemId))
   <cac:BuyersItemIdentification>
     #xrText("cbc:ID" $item.buyersItemId)
   </cac:BuyersItemIdentification>
   #end
-  #if($xrh.has($item.standardId))
+  #if($xml.has($item.sellersItemId))
+  <cac:SellersItemIdentification>
+    #xrText("cbc:ID" $item.sellersItemId)
+  </cac:SellersItemIdentification>
+  #end
+  #if($xml.has($item.standardId))
   <cac:StandardItemIdentification>
     #xrIdentifier("cbc:ID" $item.standardId $item.standardIdSchemeId)
   </cac:StandardItemIdentification>
   #end
-  #if($xrh.has($item.classifications))
-    #foreach($classification in $item.classifications)
-      #if($xrh.has($classification.code))
-  <cac:CommodityClassification>
-    <cbc:ItemClassificationCode#if($xrh.has($classification.listId)) listID="$xrh.attr($classification.listId)"#end#if($xrh.has($classification.listVersionId)) listVersionID="$xrh.attr($classification.listVersionId)"#end>$xrh.text($classification.code)</cbc:ItemClassificationCode>
-  </cac:CommodityClassification>
-      #end
-    #end
-  #end
-  #if($xrh.has($item.originCountryCode))
+  #if($xml.has($item.originCountryCode))
   <cac:OriginCountry>
     #xrText("cbc:IdentificationCode" $item.originCountryCode)
   </cac:OriginCountry>
   #end
-  #if($xrh.has($item.attributes))
+  #if($xml.has($item.classifications))
+    #foreach($classification in $item.classifications)
+      #if($xml.has($classification.code))
+  <cac:CommodityClassification>
+    <cbc:ItemClassificationCode#if($xml.has($classification.listId)) listID="$xml.attr($classification.listId)"#end#if($xml.has($classification.listVersionId)) listVersionID="$xml.attr($classification.listVersionId)"#end>$xml.text($classification.code)</cbc:ItemClassificationCode>
+  </cac:CommodityClassification>
+      #end
+    #end
+  #end
+  #xrTaxCategory("cac:ClassifiedTaxCategory" $tax)
+  #if($xml.has($item.attributes))
     #foreach($attribute in $item.attributes)
-      #if($xrh.has($attribute.name) || $xrh.has($attribute.value))
+      #if($xml.has($attribute.name) || $xml.has($attribute.value))
   <cac:AdditionalItemProperty>
     #xrText("cbc:Name" $attribute.name)
     #xrText("cbc:Value" $attribute.value)
@@ -537,13 +477,12 @@
       #end
     #end
   #end
-  #xrTaxCategory("cac:ClassifiedTaxCategory" $tax)
 </cac:Item>
 #end
 #end
 
 #macro(xrInvoiceLine $line $currency)
-#set($xrHasLine = $xrh.has($line.id) || $xrh.has($line.note) || $xrh.has($line.objectReference) || $xrh.has($line.quantity) || $xrh.has($line.lineExtensionAmount) || $xrh.has($line.accountingCost) || $xrh.has($line.orderLineReference) || $xrh.has($line.period) || $xrh.has($line.allowances) || $xrh.has($line.charges) || $xrh.has($line.item) || $xrh.has($line.vat) || $xrh.has($line.price))
+#set($xrHasLine = $xml.has($line.id) || $xml.has($line.note) || $xml.has($line.objectReference) || $xml.has($line.quantity) || $xml.has($line.lineExtensionAmount) || $xml.has($line.accountingCost) || $xml.has($line.orderLineReference) || $xml.has($line.period) || $xml.has($line.allowances) || $xml.has($line.charges) || $xml.has($line.item) || $xml.has($line.vat) || $xml.has($line.price))
 #if($xrHasLine)
 <cac:InvoiceLine>
   #xrText("cbc:ID" $line.id)
@@ -552,18 +491,24 @@
   #xrAmount("cbc:LineExtensionAmount" $line.lineExtensionAmount $currency)
   #xrText("cbc:AccountingCost" $line.accountingCost)
   #xrInvoicePeriod($line.period)
-  #if($xrh.has($line.orderLineReference))
+  #if($xml.has($line.orderLineReference))
   <cac:OrderLineReference>
     #xrText("cbc:LineID" $line.orderLineReference)
   </cac:OrderLineReference>
   #end
-  #xrLineObjectReference($line.objectReference)
-  #if($xrh.has($line.allowances))
+  #set($xrHasLineObjectReference = $xml.has($line.objectReference.id))
+  #if($xrHasLineObjectReference)
+  <cac:DocumentReference>
+    #xrIdentifier("cbc:ID" $line.objectReference.id $line.objectReference.schemeId)
+    <cbc:DocumentTypeCode>130</cbc:DocumentTypeCode>
+  </cac:DocumentReference>
+  #end
+  #if($xml.has($line.allowances))
     #foreach($allowance in $line.allowances)
       #xrAllowanceCharge($allowance "false" $currency)
     #end
   #end
-  #if($xrh.has($line.charges))
+  #if($xml.has($line.charges))
     #foreach($charge in $line.charges)
       #xrAllowanceCharge($charge "true" $currency)
     #end
@@ -575,7 +520,6 @@
 #end
 #set($currency = $xr.invoice.documentCurrencyCode)
 #set($taxCurrency = $xr.invoice.taxCurrencyCode)
-<?xml version="1.0" encoding="UTF-8"?>
 <Invoice
   xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
   xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
@@ -588,30 +532,36 @@
   #xrDate("cbc:IssueDate" $xr.invoice.issueDate)
   #xrDate("cbc:DueDate" $xr.invoice.dueDate)
   #xrText("cbc:InvoiceTypeCode" $xr.invoice.typeCode)
-  #xrText("cbc:DocumentCurrencyCode" $xr.invoice.documentCurrencyCode)
-  #xrText("cbc:TaxCurrencyCode" $xr.invoice.taxCurrencyCode)
-  #xrDate("cbc:TaxPointDate" $xr.invoice.taxPointDate)
-  #if($xrh.has($xr.notes))
+  #if($xml.has($xr.notes))
     #foreach($note in $xr.notes)
       #xrNote("cbc:Note" $note)
     #end
   #end
-  #xrText("cbc:BuyerReference" $xr.invoice.buyerReference)
+  #xrDate("cbc:TaxPointDate" $xr.invoice.taxPointDate)
+  #xrText("cbc:DocumentCurrencyCode" $xr.invoice.documentCurrencyCode)
+  #xrText("cbc:TaxCurrencyCode" $xr.invoice.taxCurrencyCode)
   #xrText("cbc:AccountingCost" $xr.invoice.accountingCost)
+  #xrText("cbc:BuyerReference" $xr.invoice.buyerReference)
+  #xrInvoicePeriod($xr.invoicePeriod)
 
   ## Top-level references and document object references
-  #xrProjectReference($xr.projectReferenceId)
-  #xrDocumentReference("cac:ContractDocumentReference" $xr.contractReferenceId)
   #xrOrderReference($xr.orderReference)
-  #xrDocumentReference("cac:ReceiptDocumentReference" $xr.receiptReferenceId)
-  #xrDocumentReference("cac:DespatchDocumentReference" $xr.despatchReferenceId)
-  #xrDocumentReference("cac:OriginatorDocumentReference" $xr.originatorReferenceId)
-  #if($xrh.has($xr.precedingInvoices))
+  #if($xml.has($xr.precedingInvoices))
     #foreach($reference in $xr.precedingInvoices)
       #xrBillingReference($reference)
     #end
   #end
+  #xrDocumentReference("cac:DespatchDocumentReference" $xr.despatchReferenceId)
+  #xrDocumentReference("cac:ReceiptDocumentReference" $xr.receiptReferenceId)
+  #xrDocumentReference("cac:OriginatorDocumentReference" $xr.originatorReferenceId)
+  #xrDocumentReference("cac:ContractDocumentReference" $xr.contractReferenceId)
   #xrInvoicedObjectReference($xr.invoiceObjectReference)
+  #if($xml.has($xr.supportingDocuments))
+    #foreach($doc in $xr.supportingDocuments)
+      #xrAdditionalDocumentReference($doc)
+    #end
+  #end
+  #xrProjectReference($xr.projectReferenceId)
 
   ## Parties
   #xrNestedParty("cac:AccountingSupplierParty" $xr.seller)
@@ -621,17 +571,16 @@
 
   ## Delivery, periods, and payment
   #xrDelivery($xr.delivery)
-  #xrInvoicePeriod($xr.invoicePeriod)
   #xrPaymentMeans($xr.payment)
   #xrPaymentTerms($xr.paymentTerms)
 
   ## Document level allowances and charges
-  #if($xrh.has($xr.documentAllowances))
+  #if($xml.has($xr.documentAllowances))
     #foreach($allowance in $xr.documentAllowances)
       #xrAllowanceCharge($allowance "false" $currency)
     #end
   #end
-  #if($xrh.has($xr.documentCharges))
+  #if($xml.has($xr.documentCharges))
     #foreach($charge in $xr.documentCharges)
       #xrAllowanceCharge($charge "true" $currency)
     #end
@@ -641,15 +590,8 @@
   #xrTaxTotal($xr.totals.taxAmountInDocumentCurrency $xr.totals.taxAmountInTaxCurrency $xr.vatBreakdowns $currency $taxCurrency)
   #xrMonetaryTotal($xr.totals $currency)
 
-  ## Supporting documents
-  #if($xrh.has($xr.supportingDocuments))
-    #foreach($doc in $xr.supportingDocuments)
-      #xrAdditionalDocumentReference($doc)
-    #end
-  #end
-
   ## Lines
-  #if($xrh.has($xr.lines))
+  #if($xml.has($xr.lines))
     #foreach($line in $xr.lines)
       #xrInvoiceLine($line $currency)
     #end

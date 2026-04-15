@@ -1,15 +1,14 @@
 # DTO-to-Public Mapping Matrix Guide
 
-Diese Vorlage beschreibt nur den neutralen Schritt
+Die Matrix beschreibt den neutralen Schritt
 
 `interne DTOs -> oeffentliches $xr-Modell`
 
-und gerade nicht den Schritt `Public -> UBL`.
+und nicht das spaetere UBL-Rendering.
 
-Die eigentliche Vorlage steht in
-[dto-to-public-mapping-matrix-template.tsv](./dto-to-public-mapping-matrix-template.tsv).
+Vorlage: [dto-to-public-mapping-matrix-template.tsv](./dto-to-public-mapping-matrix-template.tsv).
 
-## Sinn der Matrix
+## Zweck der Matrix
 
 Die Matrix trennt sauber:
 
@@ -17,16 +16,14 @@ Die Matrix trennt sauber:
 - oeffentlichen Zielpfad im `$xr`-Modell
 - notwendige Voraufbereitung vor Velocity
 
-Damit kann sich die `.vm` spaeter aendern, ohne dass ihr jedes Mal wieder die
-interne DTO-Zuordnung neu denken muesst.
+Damit bleiben internes Mapping und Template-Entscheidungen voneinander getrennt.
 
-## Wie ihr sie verwenden koennt
+## Verwendung
 
 1. Diese TSV-Datei in einen privaten Arbeitsbereich kopieren.
 2. Die Spalte `source_internal` nur dort mit internen DTO-Pfaden oder
    Erzeugungsregeln fuellen.
-3. In `transform_kind` notieren, welche Aufbereitung vor dem Befuellen des
-   Public Models passiert.
+3. In `mapping_work` bei Bedarf die vorgesehene Aufbereitung ergaenzen.
 4. In `status` markieren, was nur roh gemappt, was fachlich vorbereitet und was
    schon verifiziert ist.
 
@@ -35,61 +32,56 @@ interne DTO-Zuordnung neu denken muesst.
 | Spalte | Bedeutung |
 |---|---|
 | `public_path` | Zielpfad im oeffentlichen `$xr`-Modell |
-| `node_kind` | `value`, `object` oder `list` |
 | `term_hint` | oeffentliche XRechnung-Referenz oder Hinweis auf den Block |
-| `action_hint` | grobe Arbeitsform: `map_value`, `compose_object`, `repeat_or_group` |
+| `mapping_work` | kompakte Arbeitsangabe wie `value / map`, `object / compose`, `list / repeat`; bei Bedarf mit weiterer Voraufbereitung ergaenzen |
 | `source_internal` | privat zu fuellender DTO-Pfad, Query oder Berechnungsquelle |
-| `transform_kind` | privat zu fuellende Voraufbereitung |
-| `null_policy` | was bei fehlendem oder leerem Quellwert passieren soll |
 | `status` | z. B. `todo`, `mapped`, `verified`, `blocked` |
-| `notes` | freie Bemerkungen, offene Fragen, Sonderlogik |
 
-## Empfohlene Werte fuer `transform_kind`
+## Werte in `mapping_work`
 
-- `direct`
-- `normalize_blank_to_null`
-- `format_date`
-- `normalize_decimal`
-- `constant`
-- `conditional`
-- `choose_one`
-- `lookup_code`
-- `split_identifier`
-- `join_text`
-- `aggregate_totals`
-- `build_vat_breakdown`
-- `repeat_from_source_list`
-- `group_by_business_key`
+- `value / map`
+- `object / compose`
+- `list / repeat`
+- `value / map / normalize_blank_to_null`
+- `value / map / format_date`
+- `value / map / normalize_decimal`
+- `value / map / constant`
+- `value / map / choose_one`
+- `value / map / lookup_code`
+- `value / map / split_identifier`
+- `value / map / join_text`
+- `object / compose / aggregate_totals`
+- `list / repeat / build_vat_breakdown`
+- `list / repeat / group_by_business_key`
 
-Ihr koennt diese Werte frei erweitern. Wichtig ist nur, dass sie bei euch
-einheitlich verwendet werden.
+Sinnvoll ist eine einheitliche, kurze Schreibweise ueber alle Zeilen hinweg.
 
-## Empfohlene Werte fuer `null_policy`
+## Fehlende Werte
 
-- `omit_if_missing`
-- `derive_or_null`
-- `empty_list_if_missing`
-- `drop_list_item_if_empty`
-- `must_be_constant`
-- `diagnose_if_missing`
+Beim Aufbau des Public Models gilt:
 
-## Wie man Container-Zeilen nutzt
+- fehlende oder leere Quellwerte werden im Public Model weggelassen oder zu
+  `null` normalisiert
+- leere Listen bleiben leer
+- Listeneintraege ohne echten Inhalt werden beim Aufbau des Public Models
+  verworfen
 
-- `object`-Zeilen beschreiben nicht einen einzelnen Wert, sondern wie ein
-  zusammengesetzter Block gebaut wird.
-- `list`-Zeilen beschreiben, aus welcher internen Liste oder Gruppierung mehrere
-  Public-Objekte entstehen.
+## Container-Zeilen
+
+- `object / compose` beschreibt einen zusammengesetzten Block.
+- `list / repeat` beschreibt eine interne Liste oder Gruppierung, aus der
+  mehrere Public-Objekte entstehen.
 
 Beispiele:
 
 - `xr.vatBreakdowns[]`:
-  `transform_kind = build_vat_breakdown`
+  `mapping_work = list / repeat / build_vat_breakdown`
 - `xr.lines[]`:
-  `transform_kind = repeat_from_source_list`
+  `mapping_work = list / repeat`
 - `xr.totals`:
-  `transform_kind = aggregate_totals`
+  `mapping_work = object / compose / aggregate_totals`
 
-## Empfohlene Bearbeitungsreihenfolge
+## Bearbeitungsreihenfolge
 
 1. Kopfwerte und einfache Referenzen
 2. Parteien und Adressen
@@ -98,7 +90,7 @@ Beispiele:
 5. Abgeleitete Summen und Steueraufschluesselung
 6. Sonderfaelle wie `BT-18`, `BT-82`, `BT-90`, `BT-111`
 
-## Wichtige Sonderfaelle
+## Sonderfaelle
 
 - `BT-8` liegt im Public Model unter `xr.invoicePeriod.descriptionCode`.
 - `BT-18` und `BT-128` sind im Public Model Objektpfade mit `id` und
@@ -109,8 +101,8 @@ Beispiele:
   gefuehrt.
 - `BT-111` ist getrennt als `xr.totals.taxAmountInTaxCurrency`.
 
-## Praktischer Hinweis
+## Ablage
 
-Die oeffentliche Vorlage kann hier im Projekt liegen bleiben.
-Die befuellte Matrix mit echten `source_internal`-Eintraegen sollte in euren
-privaten Bereich oder in euer internes Repo wandern.
+Die oeffentliche Vorlage bleibt in diesem Repo.
+Eine befuellte Matrix mit echten `source_internal`-Eintraegen gehoert in den
+privaten Bereich oder in ein internes Repo.

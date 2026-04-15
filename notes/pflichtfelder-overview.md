@@ -1,14 +1,14 @@
 # Pflichtfelder in XRechnung CIUS 3.0.2
 
-Arbeitsnotiz auf Basis des offiziellen SeMoX-Modells fuer `invoice`.
+Auswertung des offiziellen SeMoX-Modells fuer `invoice`.
 
-Quellen:
+## Quellen
 
 - `bundle-docs/xrechnung/model/semox/xrechnung-cius-model.xml`
 - `bundle-docs/xrechnung/model/README.md`
 - `bundle-docs/xrechnung/testsuite/instances/technical-cases/cius/01.05_minimal_test_ubl.xml`
 
-Methodik:
+## Methodik
 
 1. Strukturell global verpflichtend:
    `min-occurs != 0` und kein optionaler Vorfahre im `invoice`-Baum.
@@ -27,9 +27,9 @@ Methodik:
 - Jenseits der globalen Struktur tauchen `43` unterschiedliche `BT-*` in
   Pflichtigkeitsregeln auf.
 
-Praktische Bedeutung:
+## Einordnung
 
-- Die Pflichtfeldlisten sind als Diagnose- und Analysebasis sehr nuetzlich.
+- Die Pflichtfeldlisten eignen sich gut fuer Diagnose und Analyse.
 - Ein vollstaendiger Vorab-Check fuer alle konditionalen XRechnung-Pflichten ist
   bereits ein kleiner Fachvalidator und widerspricht schnell dem Ziel, den
   Standard moeglichst nur ueber Template-Updates nachzuziehen.
@@ -134,7 +134,7 @@ verwendet wird, sind sie hart erforderlich.
 | `BG-28` Invoice line charge | `BT-141` |
 | `BG-32` Item attribute | `BT-160`, `BT-161` |
 
-Wichtig:
+Hinweis:
 
 - Diese Kategorie ist fuer eine Vorvalidierung sehr dankbar.
 - Sie laesst sich nahezu rein aus Baumstruktur und Listenlogik abfangen.
@@ -200,9 +200,9 @@ Die groessten Zusatzaufwaende kommen aus den Umsatzsteuer-Regelgruppen:
 
 ## 4. Aufwandseinschaetzung fuer Diagnose- oder Vorab-Checks
 
-### Stufe A: harter Render-Vorcheck
+### Stufe A: Render-Vorcheck
 
-Prueft nur, was das Template wirklich braucht, um valide Kernstruktur zu bauen.
+Prueft nur, was das Template fuer die Kernstruktur braucht.
 
 Umfang:
 
@@ -215,7 +215,7 @@ Einschaetzung:
 - relativ ueberschaubar
 - gut als Diagnose-Check oder optionaler Hinweis-Check machbar
 
-### Stufe B: optionale Gruppen konsistent machen
+### Stufe B: optionale Gruppen
 
 Prueft, ob optional geoeffnete Gruppen ihre lokalen Pflichtfelder enthalten.
 
@@ -229,7 +229,7 @@ Einschaetzung:
 - immer noch gut beherrschbar
 - gut geeignet fuer eine spaetere Diagnoseliste "welche Stellen fehlen noch"
 
-### Stufe C: fachlich vollstaendig gegen XRechnung
+### Stufe C: fachliche Vollpruefung
 
 Prueft auch steuerkategoriegetriebene Pflichtigkeit, Alternativen,
 Identifikationsregeln und Sonderfaelle.
@@ -247,15 +247,15 @@ Einschaetzung:
 
 ## Empfehlung
 
-Fuer den beschriebenen Draft-Anwendungsfall ist ein toleranter Renderer die
-sinnvollere Grundhaltung:
+Fuer den Draft-Anwendungsfall ist ein toleranter Renderer die passendere
+Grundhaltung:
 
 1. Die `.vm` rendert vorhandene Inhalte und laesst Fehlendes einfach weg.
 2. Pflichtigkeiten werden nicht als Render-Schranke verwendet.
-3. Die hier ermittelten Pflichtfelder und Regeln dienen danach fuer
-   Diagnose, Verifikation und Nutzerhinweise.
+3. Die hier ermittelten Pflichtfelder und Regeln dienen danach fuer Diagnose,
+   Verifikation und Nutzerhinweise.
 
-So bleibt die Anpassungsflaeche bei Standardaenderungen moeglichst stark in der
-Template- und Mapping-Ebene. Falls spaeter dennoch Vorab-Pruefungen gewuenscht
-sind, sollten sie als nicht-blockierende Diagnostik beginnen und nicht als harte
-Vorbedingung fuer das Rendering.
+So bleibt die Anpassungsflaeche bei Standardaenderungen in Template- und
+Mapping-Ebene. Falls spaeter Vorab-Pruefungen gewuenscht sind, sollten sie mit
+diagnostischen Hinweisen beginnen und nicht als harte Vorbedingung fuer das
+Rendering.

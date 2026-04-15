@@ -1,32 +1,30 @@
 # Template Patterns fuer UBL/XRechnung
 
-Basis:
+## Grundlage
 
-- Diese Unterlagen beziehen sich auf das lokale Bundle in
+- Grundlage ist das lokale Bundle in
   [README.md](../bundle-docs/xrechnung/bundle/README.md).
-- Dort ist die Spezifikation explizit als `XRechnung Specification 3.0.2`
-  und das Syntax-Binding als `zu 3.0.2` ausgewiesen.
-- Das verwendete SeMoX-Modell ist das Artefakt
+- Spezifikation: `XRechnung Specification 3.0.2`.
+- Syntax-Binding: `zu 3.0.2`.
+- Verwendetes SeMoX-Modell:
   `bundle-docs/xrechnung/model/semox/xrechnung-cius-model.xml` aus dem Model-Stand
   `2026-01-31`.
-- Fokus hier ist `UBL Invoice` (`ubl-inv`), nicht `CreditNote` und nicht
-  `CII`.
+- Fokus hier ist `UBL Invoice` (`ubl-inv`).
 
-Ziel:
+## Aufbau
 
-- Die Anpassungsflaeche bei Standardaenderungen moeglichst in `yaml` und `.vm`
-  halten.
+- Aenderungen am Standard moeglichst in `yaml` und `.vm` halten.
 - Wiederkehrende UBL-Strukturen nicht immer wieder neu schreiben.
 - Das oeffentliche Zwischenmodell `$xr` stabil halten, auch wenn sich die
   interne DTO-Struktur aendert.
-- Das eigentliche `Invoice.vm` auf eine duenne Dokument-Schale reduzieren.
+- Die eigentliche `Invoice.vm` auf eine duenne Dokument-Schale reduzieren.
 
-Die Vollsicht ueber den gesamten 3.0.2er-Blockbaum steht in
+Blockuebersicht:
 [xrechnung-3.0.2-ubl-invoice-block-overview.md](./xrechnung-3.0.2-ubl-invoice-block-overview.md).
 
-## Grundidee
+## Schichten
 
-Die Template-Ebenen trennen sich in drei Schichten:
+Die Templates trennen drei Schichten:
 
 1. Primitive Render-Muster
    Werte, Attribute, Identifier, Amounts, Quantity, Date.
@@ -41,7 +39,7 @@ Die Template-Ebenen trennen sich in drei Schichten:
 | Pattern | Typische BT/BG | UBL-Form | Macro |
 |---|---|---|---|
 | Einfacher Wert | `BT-1`, `BT-10`, `BT-23` | `cbc:*` | `xrText`, `xrDate`, `xrNumber` |
-| Wert mit Sonderattribut | `BT-82` | `cbc:* @name` | `xrNamedCode` |
+| Wert mit Sonderattribut | `BT-82` | `cbc:* @name` | `xrPaymentMeans` |
 | Wert mit `schemeID` | `BT-34`, `BT-49`, `BT-157` | `cbc:* @schemeID` | `xrIdentifier` |
 | Wert mit `currencyID` | `BT-92`, `BT-106`, `BT-117` | `cbc:* @currencyID` | `xrAmount` |
 | Wert mit `unitCode` | `BT-129`, `BT-149` | `cbc:* @unitCode` | `xrQuantity` |
@@ -60,15 +58,15 @@ Die Template-Ebenen trennen sich in drei Schichten:
 | Zahlungsblock | `BG-16..19`, `BT-81..91` | `cac:PaymentMeans` | `xrPaymentMeans`, `xrPaymentTerms` |
 | Nachlass/Zuschlag | `BG-20/21/27/28`, `BT-92..105`, `BT-136..145` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
 | Steuerkategorie | `BT-95/96`, `BT-102/103`, `BT-118..121`, `BT-151/152` | `cac:TaxCategory`, `cac:ClassifiedTaxCategory` | `xrTaxCategory` |
-| Umsatzsteueraufschluesselung | `BG-23`, `BT-110/111`, `BT-116..121` | `cac:TaxTotal/cac:TaxSubtotal` | `xrTaxSubtotal`, `xrTaxTotal` |
+| Umsatzsteueraufschluesselung | `BG-23`, `BT-110/111`, `BT-116..121` | `cac:TaxTotal/cac:TaxSubtotal` | `xrTaxTotal` |
 | Dokumentensumme | `BG-22`, `BT-106..115` | `cac:LegalMonetaryTotal` | `xrMonetaryTotal` |
 | Rechnungsbegruendende Unterlage | `BG-24`, `BT-122..125` | `cac:AdditionalDocumentReference` | `xrAdditionalDocumentReference` |
 | Positionsobjekt-Referenz | `BT-128` | `cac:InvoiceLine/cac:DocumentReference` mit `DocumentTypeCode=130` | `xrLineObjectReference` |
-| Preisdetails | `BG-29`, `BT-146..150` | `cac:Price` | `xrPrice`, `xrPriceDiscount` |
+| Preisdetails | `BG-29`, `BT-146..150` | `cac:Price` | `xrPrice` |
 | Artikelinformationen | `BG-30..32`, `BT-151..161` | `cac:Item` | `xrItem` |
 | Rechnungsposition | `BG-25`, `BT-126..161` | `cac:InvoiceLine` | `xrInvoiceLine` |
 
-## Empfohlene oeffentliche Modellformen
+## Beispielhafte oeffentliche Modellformen
 
 ### Kopf und einfache Referenzen
 
@@ -83,8 +81,6 @@ invoice:
   dueDate: "2026-05-14"
   typeCode: "380"
   documentCurrencyCode: EUR
-  taxCurrencyCode: EUR
-  taxPointDate: "2026-04-14"
   buyerReference: 04011000-12345-34
   accountingCost: KST-1000
 
@@ -132,7 +128,6 @@ seller:
   identifiers:
     - value: 123456789
       schemeId: 0088
-  sepaCreditorId: DE98ZZZ09999999999
   vatIdentifier: DE123456789
   legalRegistrationId: HRB12345
   legalRegistrationIdSchemeId: 0204
@@ -180,9 +175,6 @@ payment:
     - id: DE02120300000000202051
       name: Lieferant GmbH
       bic: BYLADEM1001
-  mandates:
-    - id: MANDAT-77
-      payerAccountId: DE44500105175407324931
 
 paymentTerms:
   note: Zahlbar innerhalb von 30 Tagen netto.
@@ -191,17 +183,11 @@ paymentTerms:
 ### Dokumentreferenzen und Anlagen
 
 ```yaml
-invoiceObjectReference:
-  id: ZAeHLER-44
-  schemeId: AAB
-
 supportingDocuments:
   - id: anhang-01
     description: Leistungsnachweis
     embedded:
-      content: BASE64...
-      mimeCode: application/pdf
-      filename: leistung.pdf
+      externalUri: https://example.org/nachweis/4711
   - id: ext-01
     description: Externer Nachweis
     embedded:
@@ -231,7 +217,6 @@ totals:
   lineExtensionAmount: 100.00
   taxExclusiveAmount: 100.00
   taxAmountInDocumentCurrency: 19.00
-  taxAmountInTaxCurrency: 19.00
   taxInclusiveAmount: 119.00
   payableAmount: 119.00
 ```
@@ -281,7 +266,7 @@ lines:
       baseQuantityUnitCode: HUR
 ```
 
-## Sonderformen, die bewusst explizit bleiben
+## Sonderformen, die explizit bleiben
 
 - `BT-8` ist semantisch top-level, rendert aber in dieselbe UBL-Struktur wie
   `BG-14`. Im oeffentlichen Modell steckt das deshalb in
@@ -292,23 +277,23 @@ lines:
   `cbc:PaymentMeansCode`.
 - `BT-90` steht syntaktisch nicht in `PaymentMeans`, sondern als
   `PartyIdentification` mit `schemeID = "SEPA"` bei Seller oder Payee.
-- `BT-111` ist in UBL ein zweites `cbc:TaxAmount` innerhalb von `cac:TaxTotal`,
-  diesmal mit `currencyID = BT-6`.
+- `BT-111` ist in UBL ein weiterer `cac:TaxTotal/cbc:TaxAmount` mit
+  `currencyID = BT-6`.
 
-## Erweiterungsstrategie
+## Aenderungsregel
 
-Wenn sich der Standard aendert:
+Bei Standardaenderungen gilt:
 
 1. Zuerst die Mapping-Datei anpassen.
 2. Pruefen, ob die neue Struktur bereits zu einem vorhandenen Pattern passt.
 3. Nur wenn wirklich ein neues Strukturmuster auftaucht, ein neues Macro
    einfuehren.
-4. Die Dokumentkomposition selbst sollte moeglichst nur Makro-Aufrufe enthalten.
+4. Die Dokumentkomposition sollte moeglichst nur Makro-Aufrufe enthalten.
 
-## Praktische Konsequenz
+## Konsequenz
 
-Je mehr die eigentliche `Invoice.vm` nur noch aus solchen Bausteinen besteht,
-desto eher kann ein Versionsupdate ohne Java-Code-Aenderung auskommen:
+Je mehr `Invoice.vm` nur noch aus solchen Bausteinen besteht, desto eher bleibt
+ein Versionsupdate ohne Java-Code-Aenderung:
 
 - neue Felder im existierenden Block:
   meistens nur Macro oder Aufruf erweitern

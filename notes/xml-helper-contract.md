@@ -1,21 +1,19 @@
-# `$xrh` Helper Contract fuer Velocity
+# `$xml` Helper Contract fuer Velocity
 
-Diese Datei beschreibt den minimalen Helper-Vertrag, den die aktuellen
-Velocity-Templates im Kontext unter dem Namen `$xrh` erwarten.
+Minimaler Helper-Vertrag fuer die Velocity-Templates.
 
-Geltungsbereich:
+Verwendet in:
 
-- [ubl-pattern-library.vm](../templates/ubl-pattern-library.vm)
 - [ubl-invoice-core.vm](../templates/ubl-invoice-core.vm)
 - [ubl-invoice-full.vm](../templates/ubl-invoice-full.vm)
 
-Referenzimplementierung:
+Java-Referenz:
 
-- [XRechnungVelocityHelper.java](../velocity-runner/src/main/java/local/xrechnung/velocityrunner/XRechnungVelocityHelper.java)
+- [XmlHelper.java](../velocity-runner/src/main/java/local/xrechnung/velocityrunner/XmlHelper.java)
 
 ## Benoetigte Methoden
 
-Es werden aktuell genau diese Methoden benoetigt:
+Die Templates erwarten diese Methoden:
 
 - `has(Object value): boolean`
 - `text(Object value): String`
@@ -29,7 +27,7 @@ Es werden aktuell genau diese Methoden benoetigt:
 Zum Beispiel so:
 
 ```java
-public interface XRechnungVelocityHelper {
+public interface XmlHelper {
   boolean has(Object value);
   String text(Object value);
   String attr(Object value);
@@ -39,8 +37,8 @@ public interface XRechnungVelocityHelper {
 }
 ```
 
-Die Signaturen muessen nicht exakt so aussehen, aber fuer Velocity ist ein
-einfaches Objekt mit oeffentlichen Methoden und diesen Namen am unkompliziertesten.
+Fuer Velocity ist ein einfaches Objekt mit oeffentlichen Methoden und diesen
+Namen am einfachsten.
 
 ## Semantik pro Methode
 
@@ -69,7 +67,7 @@ Muss gelten:
 - komplexe Objekte / Beans ausserhalb von Collection/Map/Array duerfen weiter
   als `non-null` gelten
 
-Wichtiger Punkt:
+Hinweis:
 
 - Die Templates verlassen sich weiterhin nicht auf tiefe Bean-Inspektion.
 - Fuer echte Objekte reicht im Regelfall `value != null`.
@@ -77,7 +75,7 @@ Wichtiger Punkt:
   Presence-Pruefung, damit null-gefuellte Adapter-Objekte nicht versehentlich
   Wrapper aufmachen.
 
-Explizite Folge fuer die aktuellen Templates:
+Beispiele:
 
 - `has("")` muss `false` sein, weil z. B. die Core-Vorlage absichtlich `""`
   an `xrTaxTotal(..., "", ...)` uebergibt, damit der zweite `TaxAmount`
@@ -128,11 +126,11 @@ Muss gelten:
 - Ausgabeformat exakt `yyyy-MM-dd`
 - keine lokalisierte Ausgabe
 - keine Zeitkomponente
-- keine implizite Zeitzonenlogik im stillen Hintergrund
+- keine implizite Zeitzonenlogik
 - empfohlen: nur bereits date-artige Werte akzeptieren, z. B. `LocalDate`
   oder einen schon normalisierten String
 
-Empfehlung:
+Hinweis:
 
 - Falls intern `LocalDateTime`, `Instant` oder `Date` vorkommen, sollte die
   Umwandlung zur reinen Rechnungssicht vorher passieren und nicht heimlich in
@@ -156,7 +154,7 @@ Muss gelten:
 Empfehlung:
 
 - Werte sollten vorher bereits fachlich normalisiert und gerundet sein
-- `BigDecimal.toPlainString()` ist die richtige Denkrichtung
+- `BigDecimal.toPlainString()` passt hier gut
 - `Double`/`Float` sollten nicht still unpraezise durchrutschen
 
 ### `number`
@@ -175,13 +173,12 @@ Muss gelten:
 - kein stilles Runden
 - `0` muss ausgebbar sein
 
-Empfehlung:
+Hinweis:
 
 - Implementierung darf technisch dieselbe Formatlogik wie `amount()` nutzen
-- der getrennte Name ist trotzdem sinnvoll, weil die Templates damit semantisch
-  lesbar bleiben
+- der getrennte Name haelt die Templates semantisch lesbar
 
-## Was `$xrh` bewusst nicht tun sollte
+## Was `$xml` nicht tun sollte
 
 - keine Pflichtfeldpruefung
 - keine XRechnung-Geschaeftsregeln
@@ -190,12 +187,12 @@ Empfehlung:
 - keine Defaultwerte fuer fehlende Fachdaten
 - keine tiefe UBL-spezifische Logik
 
-Das alles gehoert in die Voraufbereitung oder spaetere Validierung, nicht in
-den kleinen Render-Helper.
+Das gehoert in die Voraufbereitung oder spaetere Validierung, nicht in den
+Render-Helper.
 
-## Praktische Robustheit
+## Implementierung
 
-Sinnvolle Zusatzregeln fuer die Implementierung:
+Sinnvolle Zusatzregeln:
 
 - Optional/Optionals intern auspacken, falls sie doch in den Kontext geraten
 - Arrays wie Collections behandeln
@@ -204,7 +201,7 @@ Sinnvolle Zusatzregeln fuer die Implementierung:
 
 ## Kurzfassung
 
-Wenn `$xrh` diese sechs Dinge sauber kann, reichen die aktuellen Templates aus:
+Wenn `$xml` diese sechs Dinge sauber kann, reichen die aktuellen Templates aus:
 
 - Presence pruefen: `has`
 - Elementtext escapen: `text`

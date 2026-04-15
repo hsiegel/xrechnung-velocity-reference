@@ -29,8 +29,8 @@ public final class SamplePublicInvoiceFactory {
         "dueDate", "2026-05-15",
         "typeCode", "380",
         "documentCurrencyCode", "EUR",
-        "taxCurrencyCode", "EUR",
-        "taxPointDate", "2026-04-14",
+        "taxCurrencyCode", null,
+        "taxPointDate", null,
         "buyerReference", "REF-4711",
         "accountingCost", "Kostenstelle 1000"
     ));
@@ -41,7 +41,7 @@ public final class SamplePublicInvoiceFactory {
     ));
 
     xr.put("invoicePeriod", map(
-        "descriptionCode", "35",
+        "descriptionCode", null,
         "startDate", "2026-04-01",
         "endDate", "2026-04-30"
     ));
@@ -55,7 +55,7 @@ public final class SamplePublicInvoiceFactory {
     xr.put("precedingInvoices", list(
         map("id", "RE-2026-00017", "issueDate", "2026-03-15")
     ));
-    xr.put("invoiceObjectReference", map("id", "OBJ-0815", "schemeId", "0160"));
+    xr.put("invoiceObjectReference", null);
 
     xr.put("seller", party(
         "Musterlieferant GmbH",
@@ -71,9 +71,7 @@ public final class SamplePublicInvoiceFactory {
         "Musterstadt",
         "10115"
     ));
-    ((Map<String, Object>) xr.get("seller")).put("sepaCreditorId", "DE98ZZZ09999999999");
-
-    xr.put("buyer", party(
+    Map<String, Object> buyer = party(
         "Beispielkunde AG",
         "Beispielkunde",
         "buyer@example.org",
@@ -86,11 +84,14 @@ public final class SamplePublicInvoiceFactory {
         "DE",
         "Berlin",
         "10243"
-    ));
+    );
+    buyer.remove("identifiers");
+    buyer.put("identifier", identifier("123456789", "0088"));
+    xr.put("buyer", buyer);
 
     xr.put("payee", map(
         "name", "Bezahlservice GmbH",
-        "identifiers", list(identifier("PAYEE-42", "0088")),
+        "identifier", identifier("PAYEE-42", "0088"),
         "sepaCreditorId", "DE12ZZZ00000000001",
         "legalRegistrationId", "HRB-778899",
         "legalRegistrationIdSchemeId", "0204"
@@ -115,12 +116,6 @@ public final class SamplePublicInvoiceFactory {
         "paymentId", "PMT-2026-042",
         "payeeAccounts", list(
             map("id", "DE02120300000000202051", "name", "Musterlieferant GmbH", "bic", "BYLADEM1001")
-        ),
-        "cards", list(
-            map("primaryAccountNumberId", "411111******1111", "holderName", "Max Beispiel")
-        ),
-        "mandates", list(
-            map("id", "MANDATE-17", "payerAccountId", "DE89370400440532013000")
         )
     ));
 
@@ -151,20 +146,20 @@ public final class SamplePublicInvoiceFactory {
     ));
 
     xr.put("totals", map(
-        "lineExtensionAmount", money("100.00"),
+        "lineExtensionAmount", money("97.60"),
         "allowanceTotalAmount", money("5.00"),
         "chargeTotalAmount", money("2.50"),
-        "taxExclusiveAmount", money("97.50"),
-        "taxAmountInDocumentCurrency", money("18.53"),
-        "taxAmountInTaxCurrency", money("18.53"),
-        "taxInclusiveAmount", money("116.03"),
+        "taxExclusiveAmount", money("95.10"),
+        "taxAmountInDocumentCurrency", money("18.07"),
+        "taxAmountInTaxCurrency", null,
+        "taxInclusiveAmount", money("113.17"),
         "prepaidAmount", money("0.00"),
         "payableRoundingAmount", money("0.00"),
-        "payableAmount", money("116.03")
+        "payableAmount", money("113.17")
     ));
 
     xr.put("vatBreakdowns", list(
-        taxBreakdown("97.50", "18.53", "S", "19", null, null)
+        taxBreakdown("95.10", "18.07", "S", "19", null, null)
     ));
 
     xr.put("supportingDocuments", list(
@@ -182,10 +177,10 @@ public final class SamplePublicInvoiceFactory {
             "id", "ANLAGE-2",
             "description", "Stundenzettel",
             "embedded", map(
-                "externalUri", null,
-                "content", "U3R1bmRlbnpldHRlbA==",
-                "mimeCode", "text/plain",
-                "filename", "stundenzettel.txt"
+                "externalUri", "https://example.org/docs/stundenzettel-april-2026.pdf",
+                "content", null,
+                "mimeCode", null,
+                "filename", null
             )
         )
     ));
@@ -198,14 +193,35 @@ public final class SamplePublicInvoiceFactory {
     return xr;
   }
 
+  public static Map<String, Object> coreInvoice() {
+    Map<String, Object> xr = fullInvoice();
+    xr.put("documentAllowances", new ArrayList<Object>());
+    xr.put("documentCharges", new ArrayList<Object>());
+
+    Map<String, Object> totals = castMap(xr.get("totals"));
+    totals.put("allowanceTotalAmount", null);
+    totals.put("chargeTotalAmount", null);
+    totals.put("taxExclusiveAmount", money("97.60"));
+    totals.put("taxAmountInDocumentCurrency", money("18.54"));
+    totals.put("taxAmountInTaxCurrency", null);
+    totals.put("taxInclusiveAmount", money("116.14"));
+    totals.put("payableAmount", money("116.14"));
+
+    xr.put("vatBreakdowns", list(
+        taxBreakdown("97.60", "18.54", "S", "19", null, null)
+    ));
+
+    return xr;
+  }
+
   private static Map<String, Object> lineOne() {
     return map(
         "id", "1",
         "note", "Leistungsposition 1",
-        "objectReference", map("id", "LINE-OBJ-1", "schemeId", "0160"),
+        "objectReference", null,
         "quantity", decimal("10"),
         "quantityUnitCode", "HUR",
-        "lineExtensionAmount", money("80.00"),
+        "lineExtensionAmount", money("77.60"),
         "accountingCost", "PSP-Element 0815",
         "orderLineReference", "10",
         "period", map("startDate", "2026-04-01", "endDate", "2026-04-10", "descriptionCode", null),
@@ -229,9 +245,7 @@ public final class SamplePublicInvoiceFactory {
             "buyersItemId", "K-ART-44",
             "standardId", "0401234512345",
             "standardIdSchemeId", "0160",
-            "classifications", list(
-                map("code", "81112100", "listId", "UNSPSC", "listVersionId", "26.0801")
-            ),
+            "classifications", new ArrayList<Object>(),
             "originCountryCode", "DE",
             "attributes", list(
                 map("name", "Team", "value", "Consulting")
@@ -358,6 +372,11 @@ public final class SamplePublicInvoiceFactory {
 
   private static BigDecimal decimal(String value) {
     return new BigDecimal(value);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> castMap(Object value) {
+    return (Map<String, Object>) value;
   }
 
   private static List<Object> list(Object... values) {

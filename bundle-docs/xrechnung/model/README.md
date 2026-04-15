@@ -1,21 +1,17 @@
 # XRechnung SeMoX Models
 
-[SeMoX models](https://semo-xml.org/en/about/) of the Standard XRechnung (CIUS and Extension).
+[SeMoX models](https://semo-xml.org/en/about/) of the Standard XRechnung.
 
+## Inhalt
+
+- Enthalten ist der fuer diese Arbeitsbasis benoetigte kuratierte Teil des
+  Modellbestands.
+- Enthalten ist aktuell das CIUS-Modell unter
+  [semox/xrechnung-cius-model.xml](./semox/xrechnung-cius-model.xml)
+- Weitere Modellvarianten wie Extension oder CVD sind nicht Teil dieser
+  Repo-Kopie.
 
 ## CIUS XRechnung
-
-The model of CIUS XRechnung is defined in [xrechnung-model-semox.xml](xrechnung-model-semox.xml). 
-
-## Extension XRechnung
-
-The model of Extension XRechnung ([xrechnung-extension-model.xml](xrechnung-extension-model.xml)) 
-is derived from the CIUS XRechnung model by _Tailoring_.
-
-## CIUS XRechnung CVD
-
-The model of CIUS XRechnung CVD ([xrechnung-cvd-model.xml](xrechnung-cvd-model.xml)) 
-is derived from the CIUS XRechnung model by _Tailoring_.
 
 ## Background on SeMoX
 

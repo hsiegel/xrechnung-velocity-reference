@@ -1,234 +1,234 @@
-public_path	node_kind	term_hint	action_hint	source_internal	transform_kind	null_policy	status	notes
-xr.process	object	BG-2	compose_object			omit_if_missing	todo	
-xr.process.customizationId	value	BT-24	map_value			omit_if_missing	todo	
-xr.process.profileId	value	BT-23	map_value			omit_if_missing	todo	
-xr.invoice	object		compose_object			omit_if_missing	todo	
-xr.invoice.id	value	BT-1	map_value			omit_if_missing	todo	
-xr.invoice.issueDate	value	BT-2	map_value			omit_if_missing	todo	
-xr.invoice.dueDate	value	BT-9	map_value			omit_if_missing	todo	
-xr.invoice.typeCode	value	BT-3	map_value			omit_if_missing	todo	
-xr.invoice.documentCurrencyCode	value	BT-5	map_value			omit_if_missing	todo	
-xr.invoice.taxCurrencyCode	value	BT-6	map_value			omit_if_missing	todo	
-xr.invoice.taxPointDate	value	BT-7	map_value			omit_if_missing	todo	
-xr.invoice.buyerReference	value	BT-10	map_value			omit_if_missing	todo	
-xr.invoice.accountingCost	value	BT-19	map_value			omit_if_missing	todo	
-xr.notes[]	list	BG-1	repeat_or_group			omit_if_missing	todo	
-xr.notes[].subjectCode	value	BT-21	map_value			omit_if_missing	todo	
-xr.notes[].text	value	BT-22	map_value			omit_if_missing	todo	
-xr.invoicePeriod	object	BT-8 plus BG-14	compose_object			omit_if_missing	todo	
-xr.invoicePeriod.descriptionCode	value	BT-8	map_value			omit_if_missing	todo	
-xr.invoicePeriod.startDate	value	BT-73	map_value			omit_if_missing	todo	
-xr.invoicePeriod.endDate	value	BT-74	map_value			omit_if_missing	todo	
-xr.projectReferenceId	value	BT-11	map_value			omit_if_missing	todo	
-xr.contractReferenceId	value	BT-12	map_value			omit_if_missing	todo	
-xr.receiptReferenceId	value	BT-15	map_value			omit_if_missing	todo	
-xr.despatchReferenceId	value	BT-16	map_value			omit_if_missing	todo	
-xr.originatorReferenceId	value	BT-17	map_value			omit_if_missing	todo	
-xr.orderReference	object	BT-13, BT-14	compose_object			omit_if_missing	todo	
-xr.orderReference.id	value	BT-13	map_value			omit_if_missing	todo	
-xr.orderReference.salesOrderId	value	BT-14	map_value			omit_if_missing	todo	
-xr.precedingInvoices[]	list	BG-3	repeat_or_group			omit_if_missing	todo	
-xr.precedingInvoices[].id	value	BT-25	map_value			omit_if_missing	todo	
-xr.precedingInvoices[].issueDate	value	BT-26	map_value			omit_if_missing	todo	
-xr.invoiceObjectReference	object	BT-18	compose_object			omit_if_missing	todo	
-xr.invoiceObjectReference.id	value	BT-18	map_value			omit_if_missing	todo	
-xr.invoiceObjectReference.schemeId	value	BT-18 schemeId	map_value			omit_if_missing	todo	
-xr.seller	object	BG-4, BG-5, BG-6	compose_object			omit_if_missing	todo	
-xr.seller.name	value	BT-27	map_value			omit_if_missing	todo	
-xr.seller.tradeName	value	BT-28	map_value			omit_if_missing	todo	
-xr.seller.endpoint	object	BT-34	compose_object			omit_if_missing	todo	
-xr.seller.endpoint.value	value	BT-34	map_value			omit_if_missing	todo	
-xr.seller.endpoint.schemeId	value	BT-34 schemeId	map_value			omit_if_missing	todo	
-xr.seller.identifiers[]	list	BT-29	repeat_or_group			omit_if_missing	todo	
-xr.seller.identifiers[].value	value	BT-29	map_value			omit_if_missing	todo	
-xr.seller.identifiers[].schemeId	value	BT-29 schemeId	map_value			omit_if_missing	todo	
-xr.seller.sepaCreditorId	value	BT-90 when represented on seller	map_value			omit_if_missing	todo	
-xr.seller.vatIdentifier	value	BT-31	map_value			omit_if_missing	todo	
-xr.seller.taxIdentifier	value	BT-32	map_value			omit_if_missing	todo	
-xr.seller.legalRegistrationId	value	BT-30	map_value			omit_if_missing	todo	
-xr.seller.legalRegistrationIdSchemeId	value	BT-30 schemeId	map_value			omit_if_missing	todo	
-xr.seller.legalForm	value	BT-33	map_value			omit_if_missing	todo	
-xr.seller.address	object	BG-5	compose_object			omit_if_missing	todo	
-xr.seller.address.street	value	BT-35	map_value			omit_if_missing	todo	
-xr.seller.address.additionalStreet	value	BT-36	map_value			omit_if_missing	todo	
-xr.seller.address.addressLine	value	BT-162	map_value			omit_if_missing	todo	
-xr.seller.address.city	value	BT-37	map_value			omit_if_missing	todo	
-xr.seller.address.postalCode	value	BT-38	map_value			omit_if_missing	todo	
-xr.seller.address.countrySubdivision	value	BT-39	map_value			omit_if_missing	todo	
-xr.seller.address.countryCode	value	BT-40	map_value			omit_if_missing	todo	
-xr.seller.contact	object	BG-6	compose_object			omit_if_missing	todo	
-xr.seller.contact.name	value	BT-41	map_value			omit_if_missing	todo	
-xr.seller.contact.phone	value	BT-42	map_value			omit_if_missing	todo	
-xr.seller.contact.email	value	BT-43	map_value			omit_if_missing	todo	
-xr.buyer	object	BG-7, BG-8, BG-9	compose_object			omit_if_missing	todo	
-xr.buyer.name	value	BT-44	map_value			omit_if_missing	todo	
-xr.buyer.tradeName	value	BT-45	map_value			omit_if_missing	todo	
-xr.buyer.endpoint	object	BT-49	compose_object			omit_if_missing	todo	
-xr.buyer.endpoint.value	value	BT-49	map_value			omit_if_missing	todo	
-xr.buyer.endpoint.schemeId	value	BT-49 schemeId	map_value			omit_if_missing	todo	
-xr.buyer.identifiers[]	list	BT-46	repeat_or_group			omit_if_missing	todo	
-xr.buyer.identifiers[].value	value	BT-46	map_value			omit_if_missing	todo	
-xr.buyer.identifiers[].schemeId	value	BT-46 schemeId	map_value			omit_if_missing	todo	
-xr.buyer.vatIdentifier	value	BT-48	map_value			omit_if_missing	todo	
-xr.buyer.legalRegistrationId	value	BT-47	map_value			omit_if_missing	todo	
-xr.buyer.legalRegistrationIdSchemeId	value	BT-47 schemeId	map_value			omit_if_missing	todo	
-xr.buyer.address	object	BG-8	compose_object			omit_if_missing	todo	
-xr.buyer.address.street	value	BT-50	map_value			omit_if_missing	todo	
-xr.buyer.address.additionalStreet	value	BT-51	map_value			omit_if_missing	todo	
-xr.buyer.address.addressLine	value	BT-163	map_value			omit_if_missing	todo	
-xr.buyer.address.city	value	BT-52	map_value			omit_if_missing	todo	
-xr.buyer.address.postalCode	value	BT-53	map_value			omit_if_missing	todo	
-xr.buyer.address.countrySubdivision	value	BT-54	map_value			omit_if_missing	todo	
-xr.buyer.address.countryCode	value	BT-55	map_value			omit_if_missing	todo	
-xr.buyer.contact	object	BG-9	compose_object			omit_if_missing	todo	
-xr.buyer.contact.name	value	BT-56	map_value			omit_if_missing	todo	
-xr.buyer.contact.phone	value	BT-57	map_value			omit_if_missing	todo	
-xr.buyer.contact.email	value	BT-58	map_value			omit_if_missing	todo	
-xr.payee	object	BG-10	compose_object			omit_if_missing	todo	
-xr.payee.name	value	BT-59	map_value			omit_if_missing	todo	
-xr.payee.identifiers[]	list	BT-60	repeat_or_group			omit_if_missing	todo	
-xr.payee.identifiers[].value	value	BT-60	map_value			omit_if_missing	todo	
-xr.payee.identifiers[].schemeId	value	BT-60 schemeId	map_value			omit_if_missing	todo	
-xr.payee.sepaCreditorId	value	BT-90 when represented on payee	map_value			omit_if_missing	todo	
-xr.payee.legalRegistrationId	value	BT-61	map_value			omit_if_missing	todo	
-xr.payee.legalRegistrationIdSchemeId	value	BT-61 schemeId	map_value			omit_if_missing	todo	
-xr.taxRepresentative	object	BG-11, BG-12	compose_object			omit_if_missing	todo	
-xr.taxRepresentative.name	value	BT-62	map_value			omit_if_missing	todo	
-xr.taxRepresentative.vatIdentifier	value	BT-63	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address	object	BG-12	compose_object			omit_if_missing	todo	
-xr.taxRepresentative.address.street	value	BT-64	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.additionalStreet	value	BT-65	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.addressLine	value	BT-164	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.city	value	BT-66	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.postalCode	value	BT-67	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.countrySubdivision	value	BT-68	map_value			omit_if_missing	todo	
-xr.taxRepresentative.address.countryCode	value	BT-69	map_value			omit_if_missing	todo	
-xr.delivery	object	BG-13 and BG-15	compose_object			omit_if_missing	todo	
-xr.delivery.partyName	value	BT-70	map_value			omit_if_missing	todo	
-xr.delivery.actualDate	value	BT-72	map_value			omit_if_missing	todo	
-xr.delivery.location	object	BT-71	compose_object			omit_if_missing	todo	
-xr.delivery.location.id	value	BT-71	map_value			omit_if_missing	todo	
-xr.delivery.location.schemeId	value	BT-71 schemeId	map_value			omit_if_missing	todo	
-xr.delivery.address	object	BG-15	compose_object			omit_if_missing	todo	
-xr.delivery.address.street	value	BT-75	map_value			omit_if_missing	todo	
-xr.delivery.address.additionalStreet	value	BT-76	map_value			omit_if_missing	todo	
-xr.delivery.address.addressLine	value	BT-165	map_value			omit_if_missing	todo	
-xr.delivery.address.city	value	BT-77	map_value			omit_if_missing	todo	
-xr.delivery.address.postalCode	value	BT-78	map_value			omit_if_missing	todo	
-xr.delivery.address.countrySubdivision	value	BT-79	map_value			omit_if_missing	todo	
-xr.delivery.address.countryCode	value	BT-80	map_value			omit_if_missing	todo	
-xr.payment	object	BG-16, BG-17, BG-18, BG-19	compose_object			omit_if_missing	todo	
-xr.payment.meansCode	value	BT-81	map_value			omit_if_missing	todo	
-xr.payment.meansText	value	BT-82	map_value			omit_if_missing	todo	
-xr.payment.paymentId	value	BT-83	map_value			omit_if_missing	todo	
-xr.payment.payeeAccounts[]	list	BG-17	repeat_or_group			omit_if_missing	todo	
-xr.payment.payeeAccounts[].id	value	BT-84	map_value			omit_if_missing	todo	
-xr.payment.payeeAccounts[].name	value	BT-85	map_value			omit_if_missing	todo	
-xr.payment.payeeAccounts[].bic	value	BT-86	map_value			omit_if_missing	todo	
-xr.payment.cards[]	list	BG-18	repeat_or_group			omit_if_missing	todo	
-xr.payment.cards[].primaryAccountNumberId	value	BT-87	map_value			omit_if_missing	todo	
-xr.payment.cards[].holderName	value	BT-88	map_value			omit_if_missing	todo	
-xr.payment.mandates[]	list	BG-19	repeat_or_group			omit_if_missing	todo	
-xr.payment.mandates[].id	value	BT-89	map_value			omit_if_missing	todo	
-xr.payment.mandates[].payerAccountId	value	BT-91	map_value			omit_if_missing	todo	
-xr.paymentTerms	object	BT-20	compose_object			omit_if_missing	todo	
-xr.paymentTerms.note	value	BT-20	map_value			omit_if_missing	todo	
-xr.documentAllowances[]	list	BG-20	repeat_or_group			omit_if_missing	todo	
-xr.documentAllowances[].amount	value	BT-92	map_value			omit_if_missing	todo	
-xr.documentAllowances[].baseAmount	value	BT-93	map_value			omit_if_missing	todo	
-xr.documentAllowances[].percent	value	BT-94	map_value			omit_if_missing	todo	
-xr.documentAllowances[].reason	value	BT-97	map_value			omit_if_missing	todo	
-xr.documentAllowances[].reasonCode	value	BT-98	map_value			omit_if_missing	todo	
-xr.documentAllowances[].tax	object	BT-95..96	compose_object			omit_if_missing	todo	
-xr.documentAllowances[].tax.categoryCode	value	BT-95	map_value			omit_if_missing	todo	
-xr.documentAllowances[].tax.rate	value	BT-96	map_value			omit_if_missing	todo	
-xr.documentAllowances[].tax.exemptionReason	value	public helper for BG-23 alignment	map_value			omit_if_missing	todo	
-xr.documentAllowances[].tax.exemptionReasonCode	value	public helper for BG-23 alignment	map_value			omit_if_missing	todo	
-xr.documentCharges[]	list	BG-21	repeat_or_group			omit_if_missing	todo	
-xr.documentCharges[].amount	value	BT-99	map_value			omit_if_missing	todo	
-xr.documentCharges[].baseAmount	value	BT-100	map_value			omit_if_missing	todo	
-xr.documentCharges[].percent	value	BT-101	map_value			omit_if_missing	todo	
-xr.documentCharges[].reason	value	BT-104	map_value			omit_if_missing	todo	
-xr.documentCharges[].reasonCode	value	BT-105	map_value			omit_if_missing	todo	
-xr.documentCharges[].tax	object	BT-102..103	compose_object			omit_if_missing	todo	
-xr.documentCharges[].tax.categoryCode	value	BT-102	map_value			omit_if_missing	todo	
-xr.documentCharges[].tax.rate	value	BT-103	map_value			omit_if_missing	todo	
-xr.documentCharges[].tax.exemptionReason	value	public helper for BG-23 alignment	map_value			omit_if_missing	todo	
-xr.documentCharges[].tax.exemptionReasonCode	value	public helper for BG-23 alignment	map_value			omit_if_missing	todo	
-xr.totals	object	BG-22	compose_object			omit_if_missing	todo	
-xr.totals.lineExtensionAmount	value	BT-106	map_value			omit_if_missing	todo	
-xr.totals.allowanceTotalAmount	value	BT-107	map_value			omit_if_missing	todo	
-xr.totals.chargeTotalAmount	value	BT-108	map_value			omit_if_missing	todo	
-xr.totals.taxExclusiveAmount	value	BT-109	map_value			omit_if_missing	todo	
-xr.totals.taxAmountInDocumentCurrency	value	BT-110	map_value			omit_if_missing	todo	
-xr.totals.taxAmountInTaxCurrency	value	BT-111	map_value			omit_if_missing	todo	
-xr.totals.taxInclusiveAmount	value	BT-112	map_value			omit_if_missing	todo	
-xr.totals.prepaidAmount	value	BT-113	map_value			omit_if_missing	todo	
-xr.totals.payableRoundingAmount	value	BT-114	map_value			omit_if_missing	todo	
-xr.totals.payableAmount	value	BT-115	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[]	list	BG-23	repeat_or_group			omit_if_missing	todo	
-xr.vatBreakdowns[].taxableAmount	value	BT-116	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[].taxAmount	value	BT-117	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[].categoryCode	value	BT-118	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[].rate	value	BT-119	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[].exemptionReason	value	BT-120	map_value			omit_if_missing	todo	
-xr.vatBreakdowns[].exemptionReasonCode	value	BT-121	map_value			omit_if_missing	todo	
-xr.supportingDocuments[]	list	BG-24	repeat_or_group			omit_if_missing	todo	
-xr.supportingDocuments[].id	value	BT-122	map_value			omit_if_missing	todo	
-xr.supportingDocuments[].description	value	BT-123	map_value			omit_if_missing	todo	
-xr.supportingDocuments[].embedded	object	BT-124..125	compose_object			omit_if_missing	todo	
-xr.supportingDocuments[].embedded.externalUri	value	BT-124	map_value			omit_if_missing	todo	
-xr.supportingDocuments[].embedded.content	value	BT-125	map_value			omit_if_missing	todo	
-xr.supportingDocuments[].embedded.mimeCode	value	BT-125 mimeCode	map_value			omit_if_missing	todo	
-xr.supportingDocuments[].embedded.filename	value	BT-125 filename	map_value			omit_if_missing	todo	
-xr.lines[]	list	BG-25..BG-32	repeat_or_group			omit_if_missing	todo	
-xr.lines[].id	value	BT-126	map_value			omit_if_missing	todo	
-xr.lines[].note	value	BT-127	map_value			omit_if_missing	todo	
-xr.lines[].objectReference	object	BT-128	compose_object			omit_if_missing	todo	
-xr.lines[].objectReference.id	value	BT-128	map_value			omit_if_missing	todo	
-xr.lines[].objectReference.schemeId	value	BT-128 schemeId	map_value			omit_if_missing	todo	
-xr.lines[].quantity	value	BT-129	map_value			omit_if_missing	todo	
-xr.lines[].quantityUnitCode	value	BT-130	map_value			omit_if_missing	todo	
-xr.lines[].lineExtensionAmount	value	BT-131	map_value			omit_if_missing	todo	
-xr.lines[].accountingCost	value	BT-133	map_value			omit_if_missing	todo	
-xr.lines[].orderLineReference	value	BT-132	map_value			omit_if_missing	todo	
-xr.lines[].period	object	BG-26	compose_object			omit_if_missing	todo	
-xr.lines[].period.startDate	value	BT-134	map_value			omit_if_missing	todo	
-xr.lines[].period.endDate	value	BT-135	map_value			omit_if_missing	todo	
-xr.lines[].allowances[]	list	BG-27	repeat_or_group			omit_if_missing	todo	
-xr.lines[].allowances[].amount	value	BT-136	map_value			omit_if_missing	todo	
-xr.lines[].allowances[].baseAmount	value	BT-137	map_value			omit_if_missing	todo	
-xr.lines[].allowances[].percent	value	BT-138	map_value			omit_if_missing	todo	
-xr.lines[].allowances[].reason	value	BT-139	map_value			omit_if_missing	todo	
-xr.lines[].allowances[].reasonCode	value	BT-140	map_value			omit_if_missing	todo	
-xr.lines[].charges[]	list	BG-28	repeat_or_group			omit_if_missing	todo	
-xr.lines[].charges[].amount	value	BT-141	map_value			omit_if_missing	todo	
-xr.lines[].charges[].baseAmount	value	BT-142	map_value			omit_if_missing	todo	
-xr.lines[].charges[].percent	value	BT-143	map_value			omit_if_missing	todo	
-xr.lines[].charges[].reason	value	BT-144	map_value			omit_if_missing	todo	
-xr.lines[].charges[].reasonCode	value	BT-145	map_value			omit_if_missing	todo	
-xr.lines[].price	object	BG-29	compose_object			omit_if_missing	todo	
-xr.lines[].price.netAmount	value	BT-146	map_value			omit_if_missing	todo	
-xr.lines[].price.discount	object	BT-147..148	compose_object			omit_if_missing	todo	
-xr.lines[].price.discount.amount	value	BT-147	map_value			omit_if_missing	todo	
-xr.lines[].price.discount.baseAmount	value	BT-148	map_value			omit_if_missing	todo	
-xr.lines[].price.baseQuantity	value	BT-149	map_value			omit_if_missing	todo	
-xr.lines[].price.baseQuantityUnitCode	value	BT-150	map_value			omit_if_missing	todo	
-xr.lines[].vat	object	BG-30	compose_object			omit_if_missing	todo	
-xr.lines[].vat.categoryCode	value	BT-151	map_value			omit_if_missing	todo	
-xr.lines[].vat.rate	value	BT-152	map_value			omit_if_missing	todo	
-xr.lines[].item	object	BG-31 and BG-32	compose_object			omit_if_missing	todo	
-xr.lines[].item.name	value	BT-153	map_value			omit_if_missing	todo	
-xr.lines[].item.description	value	BT-154	map_value			omit_if_missing	todo	
-xr.lines[].item.sellersItemId	value	BT-155	map_value			omit_if_missing	todo	
-xr.lines[].item.buyersItemId	value	BT-156	map_value			omit_if_missing	todo	
-xr.lines[].item.standardId	value	BT-157	map_value			omit_if_missing	todo	
-xr.lines[].item.standardIdSchemeId	value	BT-157 schemeId	map_value			omit_if_missing	todo	
-xr.lines[].item.classifications[]	list	BT-158	repeat_or_group			omit_if_missing	todo	
-xr.lines[].item.classifications[].code	value	BT-158	map_value			omit_if_missing	todo	
-xr.lines[].item.classifications[].listId	value	BT-158 listId	map_value			omit_if_missing	todo	
-xr.lines[].item.classifications[].listVersionId	value	BT-158 listVersionId	map_value			omit_if_missing	todo	
-xr.lines[].item.originCountryCode	value	BT-159	map_value			omit_if_missing	todo	
-xr.lines[].item.attributes[]	list	BG-32	repeat_or_group			omit_if_missing	todo	
-xr.lines[].item.attributes[].name	value	BT-160	map_value			omit_if_missing	todo	
-xr.lines[].item.attributes[].value	value	BT-161	map_value			omit_if_missing	todo	
+public_path	term_hint	mapping_work	source_internal	status
+xr.process	BG-2	object / compose		todo
+xr.process.customizationId	BT-24	value / map		todo
+xr.process.profileId	BT-23	value / map		todo
+xr.invoice		object / compose		todo
+xr.invoice.id	BT-1	value / map		todo
+xr.invoice.issueDate	BT-2	value / map		todo
+xr.invoice.dueDate	BT-9	value / map		todo
+xr.invoice.typeCode	BT-3	value / map		todo
+xr.invoice.documentCurrencyCode	BT-5	value / map		todo
+xr.invoice.taxCurrencyCode	BT-6	value / map		todo
+xr.invoice.taxPointDate	BT-7	value / map		todo
+xr.invoice.buyerReference	BT-10	value / map		todo
+xr.invoice.accountingCost	BT-19	value / map		todo
+xr.notes[]	BG-1	list / repeat		todo
+xr.notes[].subjectCode	BT-21	value / map		todo
+xr.notes[].text	BT-22	value / map		todo
+xr.invoicePeriod	BT-8 plus BG-14	object / compose		todo
+xr.invoicePeriod.descriptionCode	BT-8	value / map		todo
+xr.invoicePeriod.startDate	BT-73	value / map		todo
+xr.invoicePeriod.endDate	BT-74	value / map		todo
+xr.projectReferenceId	BT-11	value / map		todo
+xr.contractReferenceId	BT-12	value / map		todo
+xr.receiptReferenceId	BT-15	value / map		todo
+xr.despatchReferenceId	BT-16	value / map		todo
+xr.originatorReferenceId	BT-17	value / map		todo
+xr.orderReference	BT-13, BT-14	object / compose		todo
+xr.orderReference.id	BT-13	value / map		todo
+xr.orderReference.salesOrderId	BT-14	value / map		todo
+xr.precedingInvoices[]	BG-3	list / repeat		todo
+xr.precedingInvoices[].id	BT-25	value / map		todo
+xr.precedingInvoices[].issueDate	BT-26	value / map		todo
+xr.invoiceObjectReference	BT-18	object / compose		todo
+xr.invoiceObjectReference.id	BT-18	value / map		todo
+xr.invoiceObjectReference.schemeId	BT-18 schemeId	value / map		todo
+xr.seller	BG-4, BG-5, BG-6	object / compose		todo
+xr.seller.name	BT-27	value / map		todo
+xr.seller.tradeName	BT-28	value / map		todo
+xr.seller.endpoint	BT-34	object / compose		todo
+xr.seller.endpoint.value	BT-34	value / map		todo
+xr.seller.endpoint.schemeId	BT-34 schemeId	value / map		todo
+xr.seller.identifiers[]	BT-29	list / repeat		todo
+xr.seller.identifiers[].value	BT-29	value / map		todo
+xr.seller.identifiers[].schemeId	BT-29 schemeId	value / map		todo
+xr.seller.sepaCreditorId	BT-90 when represented on seller	value / map		todo
+xr.seller.vatIdentifier	BT-31	value / map		todo
+xr.seller.taxIdentifier	BT-32	value / map		todo
+xr.seller.legalRegistrationId	BT-30	value / map		todo
+xr.seller.legalRegistrationIdSchemeId	BT-30 schemeId	value / map		todo
+xr.seller.legalForm	BT-33	value / map		todo
+xr.seller.address	BG-5	object / compose		todo
+xr.seller.address.street	BT-35	value / map		todo
+xr.seller.address.additionalStreet	BT-36	value / map		todo
+xr.seller.address.addressLine	BT-162	value / map		todo
+xr.seller.address.city	BT-37	value / map		todo
+xr.seller.address.postalCode	BT-38	value / map		todo
+xr.seller.address.countrySubdivision	BT-39	value / map		todo
+xr.seller.address.countryCode	BT-40	value / map		todo
+xr.seller.contact	BG-6	object / compose		todo
+xr.seller.contact.name	BT-41	value / map		todo
+xr.seller.contact.phone	BT-42	value / map		todo
+xr.seller.contact.email	BT-43	value / map		todo
+xr.buyer	BG-7, BG-8, BG-9	object / compose		todo
+xr.buyer.name	BT-44	value / map		todo
+xr.buyer.tradeName	BT-45	value / map		todo
+xr.buyer.endpoint	BT-49	object / compose		todo
+xr.buyer.endpoint.value	BT-49	value / map		todo
+xr.buyer.endpoint.schemeId	BT-49 schemeId	value / map		todo
+xr.buyer.identifier	BT-46	object / compose		todo
+xr.buyer.identifier.value	BT-46	value / map		todo
+xr.buyer.identifier.schemeId	BT-46 schemeId	value / map		todo
+xr.buyer.vatIdentifier	BT-48	value / map		todo
+xr.buyer.legalRegistrationId	BT-47	value / map		todo
+xr.buyer.legalRegistrationIdSchemeId	BT-47 schemeId	value / map		todo
+xr.buyer.address	BG-8	object / compose		todo
+xr.buyer.address.street	BT-50	value / map		todo
+xr.buyer.address.additionalStreet	BT-51	value / map		todo
+xr.buyer.address.addressLine	BT-163	value / map		todo
+xr.buyer.address.city	BT-52	value / map		todo
+xr.buyer.address.postalCode	BT-53	value / map		todo
+xr.buyer.address.countrySubdivision	BT-54	value / map		todo
+xr.buyer.address.countryCode	BT-55	value / map		todo
+xr.buyer.contact	BG-9	object / compose		todo
+xr.buyer.contact.name	BT-56	value / map		todo
+xr.buyer.contact.phone	BT-57	value / map		todo
+xr.buyer.contact.email	BT-58	value / map		todo
+xr.payee	BG-10	object / compose		todo
+xr.payee.name	BT-59	value / map		todo
+xr.payee.identifier	BT-60	object / compose		todo
+xr.payee.identifier.value	BT-60	value / map		todo
+xr.payee.identifier.schemeId	BT-60 schemeId	value / map		todo
+xr.payee.sepaCreditorId	BT-90 when represented on payee	value / map		todo
+xr.payee.legalRegistrationId	BT-61	value / map		todo
+xr.payee.legalRegistrationIdSchemeId	BT-61 schemeId	value / map		todo
+xr.taxRepresentative	BG-11, BG-12	object / compose		todo
+xr.taxRepresentative.name	BT-62	value / map		todo
+xr.taxRepresentative.vatIdentifier	BT-63	value / map		todo
+xr.taxRepresentative.address	BG-12	object / compose		todo
+xr.taxRepresentative.address.street	BT-64	value / map		todo
+xr.taxRepresentative.address.additionalStreet	BT-65	value / map		todo
+xr.taxRepresentative.address.addressLine	BT-164	value / map		todo
+xr.taxRepresentative.address.city	BT-66	value / map		todo
+xr.taxRepresentative.address.postalCode	BT-67	value / map		todo
+xr.taxRepresentative.address.countrySubdivision	BT-68	value / map		todo
+xr.taxRepresentative.address.countryCode	BT-69	value / map		todo
+xr.delivery	BG-13 and BG-15	object / compose		todo
+xr.delivery.partyName	BT-70	value / map		todo
+xr.delivery.actualDate	BT-72	value / map		todo
+xr.delivery.location	BT-71	object / compose		todo
+xr.delivery.location.id	BT-71	value / map		todo
+xr.delivery.location.schemeId	BT-71 schemeId	value / map		todo
+xr.delivery.address	BG-15	object / compose		todo
+xr.delivery.address.street	BT-75	value / map		todo
+xr.delivery.address.additionalStreet	BT-76	value / map		todo
+xr.delivery.address.addressLine	BT-165	value / map		todo
+xr.delivery.address.city	BT-77	value / map		todo
+xr.delivery.address.postalCode	BT-78	value / map		todo
+xr.delivery.address.countrySubdivision	BT-79	value / map		todo
+xr.delivery.address.countryCode	BT-80	value / map		todo
+xr.payment	BG-16, BG-17, BG-18, BG-19	object / compose		todo
+xr.payment.meansCode	BT-81	value / map		todo
+xr.payment.meansText	BT-82	value / map		todo
+xr.payment.paymentId	BT-83	value / map		todo
+xr.payment.payeeAccounts[]	BG-17	list / repeat		todo
+xr.payment.payeeAccounts[].id	BT-84	value / map		todo
+xr.payment.payeeAccounts[].name	BT-85	value / map		todo
+xr.payment.payeeAccounts[].bic	BT-86	value / map		todo
+xr.payment.card	BG-18	object / compose		todo
+xr.payment.card.primaryAccountNumberId	BT-87	value / map		todo
+xr.payment.card.holderName	BT-88	value / map		todo
+xr.payment.mandate	BG-19	object / compose		todo
+xr.payment.mandate.id	BT-89	value / map		todo
+xr.payment.mandate.payerAccountId	BT-91	value / map		todo
+xr.paymentTerms	BT-20	object / compose		todo
+xr.paymentTerms.note	BT-20	value / map		todo
+xr.documentAllowances[]	BG-20	list / repeat		todo
+xr.documentAllowances[].amount	BT-92	value / map		todo
+xr.documentAllowances[].baseAmount	BT-93	value / map		todo
+xr.documentAllowances[].percent	BT-94	value / map		todo
+xr.documentAllowances[].reason	BT-97	value / map		todo
+xr.documentAllowances[].reasonCode	BT-98	value / map		todo
+xr.documentAllowances[].tax	BT-95..96	object / compose		todo
+xr.documentAllowances[].tax.categoryCode	BT-95	value / map		todo
+xr.documentAllowances[].tax.rate	BT-96	value / map		todo
+xr.documentAllowances[].tax.exemptionReason	public helper for BG-23 alignment	value / map		todo
+xr.documentAllowances[].tax.exemptionReasonCode	public helper for BG-23 alignment	value / map		todo
+xr.documentCharges[]	BG-21	list / repeat		todo
+xr.documentCharges[].amount	BT-99	value / map		todo
+xr.documentCharges[].baseAmount	BT-100	value / map		todo
+xr.documentCharges[].percent	BT-101	value / map		todo
+xr.documentCharges[].reason	BT-104	value / map		todo
+xr.documentCharges[].reasonCode	BT-105	value / map		todo
+xr.documentCharges[].tax	BT-102..103	object / compose		todo
+xr.documentCharges[].tax.categoryCode	BT-102	value / map		todo
+xr.documentCharges[].tax.rate	BT-103	value / map		todo
+xr.documentCharges[].tax.exemptionReason	public helper for BG-23 alignment	value / map		todo
+xr.documentCharges[].tax.exemptionReasonCode	public helper for BG-23 alignment	value / map		todo
+xr.totals	BG-22	object / compose		todo
+xr.totals.lineExtensionAmount	BT-106	value / map		todo
+xr.totals.allowanceTotalAmount	BT-107	value / map		todo
+xr.totals.chargeTotalAmount	BT-108	value / map		todo
+xr.totals.taxExclusiveAmount	BT-109	value / map		todo
+xr.totals.taxAmountInDocumentCurrency	BT-110	value / map		todo
+xr.totals.taxAmountInTaxCurrency	BT-111	value / map		todo
+xr.totals.taxInclusiveAmount	BT-112	value / map		todo
+xr.totals.prepaidAmount	BT-113	value / map		todo
+xr.totals.payableRoundingAmount	BT-114	value / map		todo
+xr.totals.payableAmount	BT-115	value / map		todo
+xr.vatBreakdowns[]	BG-23	list / repeat		todo
+xr.vatBreakdowns[].taxableAmount	BT-116	value / map		todo
+xr.vatBreakdowns[].taxAmount	BT-117	value / map		todo
+xr.vatBreakdowns[].categoryCode	BT-118	value / map		todo
+xr.vatBreakdowns[].rate	BT-119	value / map		todo
+xr.vatBreakdowns[].exemptionReason	BT-120	value / map		todo
+xr.vatBreakdowns[].exemptionReasonCode	BT-121	value / map		todo
+xr.supportingDocuments[]	BG-24	list / repeat		todo
+xr.supportingDocuments[].id	BT-122	value / map		todo
+xr.supportingDocuments[].description	BT-123	value / map		todo
+xr.supportingDocuments[].embedded	BT-124..125	object / compose		todo
+xr.supportingDocuments[].embedded.externalUri	BT-124	value / map		todo
+xr.supportingDocuments[].embedded.content	BT-125	value / map		todo
+xr.supportingDocuments[].embedded.mimeCode	BT-125 mimeCode	value / map		todo
+xr.supportingDocuments[].embedded.filename	BT-125 filename	value / map		todo
+xr.lines[]	BG-25..BG-32	list / repeat		todo
+xr.lines[].id	BT-126	value / map		todo
+xr.lines[].note	BT-127	value / map		todo
+xr.lines[].objectReference	BT-128	object / compose		todo
+xr.lines[].objectReference.id	BT-128	value / map		todo
+xr.lines[].objectReference.schemeId	BT-128 schemeId	value / map		todo
+xr.lines[].quantity	BT-129	value / map		todo
+xr.lines[].quantityUnitCode	BT-130	value / map		todo
+xr.lines[].lineExtensionAmount	BT-131	value / map		todo
+xr.lines[].accountingCost	BT-133	value / map		todo
+xr.lines[].orderLineReference	BT-132	value / map		todo
+xr.lines[].period	BG-26	object / compose		todo
+xr.lines[].period.startDate	BT-134	value / map		todo
+xr.lines[].period.endDate	BT-135	value / map		todo
+xr.lines[].allowances[]	BG-27	list / repeat		todo
+xr.lines[].allowances[].amount	BT-136	value / map		todo
+xr.lines[].allowances[].baseAmount	BT-137	value / map		todo
+xr.lines[].allowances[].percent	BT-138	value / map		todo
+xr.lines[].allowances[].reason	BT-139	value / map		todo
+xr.lines[].allowances[].reasonCode	BT-140	value / map		todo
+xr.lines[].charges[]	BG-28	list / repeat		todo
+xr.lines[].charges[].amount	BT-141	value / map		todo
+xr.lines[].charges[].baseAmount	BT-142	value / map		todo
+xr.lines[].charges[].percent	BT-143	value / map		todo
+xr.lines[].charges[].reason	BT-144	value / map		todo
+xr.lines[].charges[].reasonCode	BT-145	value / map		todo
+xr.lines[].price	BG-29	object / compose		todo
+xr.lines[].price.netAmount	BT-146	value / map		todo
+xr.lines[].price.discount	BT-147..148	object / compose		todo
+xr.lines[].price.discount.amount	BT-147	value / map		todo
+xr.lines[].price.discount.baseAmount	BT-148	value / map		todo
+xr.lines[].price.baseQuantity	BT-149	value / map		todo
+xr.lines[].price.baseQuantityUnitCode	BT-150	value / map		todo
+xr.lines[].vat	BG-30	object / compose		todo
+xr.lines[].vat.categoryCode	BT-151	value / map		todo
+xr.lines[].vat.rate	BT-152	value / map		todo
+xr.lines[].item	BG-31 and BG-32	object / compose		todo
+xr.lines[].item.name	BT-153	value / map		todo
+xr.lines[].item.description	BT-154	value / map		todo
+xr.lines[].item.sellersItemId	BT-155	value / map		todo
+xr.lines[].item.buyersItemId	BT-156	value / map		todo
+xr.lines[].item.standardId	BT-157	value / map		todo
+xr.lines[].item.standardIdSchemeId	BT-157 schemeId	value / map		todo
+xr.lines[].item.classifications[]	BT-158	list / repeat		todo
+xr.lines[].item.classifications[].code	BT-158	value / map		todo
+xr.lines[].item.classifications[].listId	BT-158 listId	value / map		todo
+xr.lines[].item.classifications[].listVersionId	BT-158 listVersionId	value / map		todo
+xr.lines[].item.originCountryCode	BT-159	value / map		todo
+xr.lines[].item.attributes[]	BG-32	list / repeat		todo
+xr.lines[].item.attributes[].name	BT-160	value / map		todo
+xr.lines[].item.attributes[].value	BT-161	value / map		todo

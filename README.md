@@ -3,7 +3,7 @@
 Dieses Repository sammelt eine oeffentliche Arbeitsbasis fuer das Rendern von
 `XRechnung 3.0.2` als `UBL Invoice` mit `Apache Velocity 1.6.4`.
 
-Der Fokus liegt bewusst auf einer klaren Trennung:
+## Prinzip
 
 - internes `DTO -> $xr` bleibt privat
 - das oeffentliche Zwischenmodell `$xr` ist hier dokumentiert
@@ -13,8 +13,8 @@ Der Fokus liegt bewusst auf einer klaren Trennung:
 ## Verzeichnisstruktur
 
 - `bundle-docs/`
-  Oeffentliche Referenzquellen aus dem offiziellen XRechnung-Bundle sowie
-  daraus entpackte Unterlagen, die wir hier lokal nachlesen.
+  Kuratierte oeffentliche Referenzquellen aus dem offiziellen
+  XRechnung-Bundle, die wir hier lokal nachlesen.
 - `templates/`
   Uploadbare Single-File-Velocity-Templates fuer `UBL Invoice`.
 - `public-model/`
@@ -29,7 +29,7 @@ Der Fokus liegt bewusst auf einer klaren Trennung:
   Kleines lokales Java-Harness, um die Templates mit `Velocity 1.6.4`
   wirklich zu rendern.
 
-## Wichtige Dateien
+## Kern-Dateien
 
 - `templates/ubl-invoice-core.vm`
   Kleine Kernsicht fuer den Einstieg.
@@ -45,8 +45,8 @@ Der Fokus liegt bewusst auf einer klaren Trennung:
   Kleine ausgefuellte Beispielinstanz.
 - `examples/ubl-invoice-full-example.yaml`
   Vollere ausgefuellte Beispielinstanz.
-- `notes/xrh-helper-contract.md`
-  Vertrag fuer die Helper-Funktionen unter `$xrh`.
+- `notes/xml-helper-contract.md`
+  Vertrag fuer die Helper-Funktionen unter `$xml`.
 - `velocity-runner/src/main/java/local/xrechnung/velocityrunner/VelocitySmokeRenderer.java`
   Minimales Testprogramm fuer echte Renderlaeufe.
 
@@ -59,11 +59,21 @@ java -jar velocity-runner/target/velocity-runner.jar \
   --out /tmp/invoice-full.xml
 ```
 
-Der Runner setzt die fuer diese Templates wichtigen Engine-Parameter bereits
-passend, insbesondere:
+Mit Validatorlauf:
+
+```bash
+java -jar velocity-runner/target/velocity-runner.jar \
+  --template templates/ubl-invoice-full.vm \
+  --out /tmp/invoice-full.xml \
+  --validate
+```
+
+Der Runner setzt insbesondere:
 
 - `runtime.references.strict = false`
 - Inline-Makros erlaubt
+- fuer lokale Validierung den KoSIT-Validator `1.6.0` aus dem Bundle unter
+  `bundle-docs/`
 
 ## Scope
 

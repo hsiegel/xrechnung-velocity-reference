@@ -9,8 +9,6 @@ xr:
     dueDate: "2026-05-15"
     typeCode: "380"
     documentCurrencyCode: EUR
-    taxCurrencyCode: EUR
-    taxPointDate: "2026-04-14"
     buyerReference: REF-4711
     accountingCost: Kostenstelle 1000
 
@@ -20,7 +18,6 @@ xr:
     - text: Vielen Dank fuer Ihren Auftrag.
 
   invoicePeriod:
-    descriptionCode: "35"
     startDate: "2026-04-01"
     endDate: "2026-04-30"
 
@@ -38,10 +35,6 @@ xr:
     - id: RE-2026-00017
       issueDate: "2026-03-15"
 
-  invoiceObjectReference:
-    id: OBJ-0815
-    schemeId: "0160"
-
   seller:
     name: Musterlieferant GmbH
     tradeName: Musterlieferant
@@ -51,7 +44,6 @@ xr:
     identifiers:
       - value: "123456789"
         schemeId: "0088"
-    sepaCreditorId: DE98ZZZ09999999999
     vatIdentifier: DE123456789
     taxIdentifier: 201/999/88888
     legalRegistrationId: HRB-12345
@@ -75,9 +67,9 @@ xr:
     endpoint:
       value: buyer-routing-id
       schemeId: "0204"
-    identifiers:
-      - value: "123456789"
-        schemeId: "0088"
+    identifier:
+      value: "123456789"
+      schemeId: "0088"
     vatIdentifier: DE987654321
     legalRegistrationId: HRB-54321
     legalRegistrationIdSchemeId: "0204"
@@ -95,9 +87,9 @@ xr:
 
   payee:
     name: Bezahlservice GmbH
-    identifiers:
-      - value: PAYEE-42
-        schemeId: "0088"
+    identifier:
+      value: PAYEE-42
+      schemeId: "0088"
     sepaCreditorId: DE12ZZZ00000000001
     legalRegistrationId: HRB-778899
     legalRegistrationIdSchemeId: "0204"
@@ -133,12 +125,6 @@ xr:
       - id: DE02120300000000202051
         name: Musterlieferant GmbH
         bic: BYLADEM1001
-    cards:
-      - primaryAccountNumberId: 411111******1111
-        holderName: Max Beispiel
-    mandates:
-      - id: MANDATE-17
-        payerAccountId: DE89370400440532013000
 
   paymentTerms:
     note: Zahlbar innerhalb von 30 Tagen ohne Abzug.
@@ -164,20 +150,19 @@ xr:
         rate: 19
 
   totals:
-    lineExtensionAmount: 100.00
+    lineExtensionAmount: 97.60
     allowanceTotalAmount: 5.00
     chargeTotalAmount: 2.50
-    taxExclusiveAmount: 97.50
-    taxAmountInDocumentCurrency: 18.53
-    taxAmountInTaxCurrency: 18.53
-    taxInclusiveAmount: 116.03
+    taxExclusiveAmount: 95.10
+    taxAmountInDocumentCurrency: 18.07
+    taxInclusiveAmount: 113.17
     prepaidAmount: 0.00
     payableRoundingAmount: 0.00
-    payableAmount: 116.03
+    payableAmount: 113.17
 
   vatBreakdowns:
-    - taxableAmount: 97.50
-      taxAmount: 18.53
+    - taxableAmount: 95.10
+      taxAmount: 18.07
       categoryCode: S
       rate: 19
 
@@ -189,19 +174,14 @@ xr:
     - id: ANLAGE-2
       description: Stundenzettel
       embedded:
-        content: U3R1bmRlbnpldHRlbA==
-        mimeCode: text/plain
-        filename: stundenzettel.txt
+        externalUri: https://example.org/docs/stundenzettel-april-2026.pdf
 
   lines:
     - id: "1"
       note: Leistungsposition 1
-      objectReference:
-        id: LINE-OBJ-1
-        schemeId: "0160"
       quantity: 10
       quantityUnitCode: HUR
-      lineExtensionAmount: 80.00
+      lineExtensionAmount: 77.60
       accountingCost: PSP-Element 0815
       orderLineReference: "10"
       period:
@@ -236,10 +216,6 @@ xr:
         buyersItemId: K-ART-44
         standardId: "0401234512345"
         standardIdSchemeId: "0160"
-        classifications:
-          - code: "81112100"
-            listId: UNSPSC
-            listVersionId: "26.0801"
         originCountryCode: DE
         attributes:
           - name: Team

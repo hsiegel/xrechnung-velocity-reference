@@ -1,15 +1,14 @@
 # XRechnung 3.0.2 Block Overview fuer `UBL Invoice`
 
-Basis:
+## Grundlage
 
-- Quelle ist das lokale Bundle unter
+- Quelle:
   [README.md](../bundle-docs/xrechnung/bundle/README.md).
-- Dort ist die Spezifikation als `XRechnung Specification 3.0.2` und das
-  Syntax-Binding als `zu 3.0.2` aufgefuehrt.
-- Die Struktur stammt aus
+- Spezifikation: `XRechnung Specification 3.0.2`.
+- Syntax-Binding: `zu 3.0.2`.
+- Struktur:
   [xrechnung-cius-model.xml](../bundle-docs/xrechnung/model/semox/xrechnung-cius-model.xml).
-- Diese Uebersicht beschreibt `UBL Invoice` (`ubl-inv`), nicht `CreditNote`
-  und nicht `CII`.
+- Diese Uebersicht beschreibt `UBL Invoice` (`ubl-inv`).
 
 ## Kopf und Referenzen
 
@@ -52,8 +51,8 @@ Basis:
 | VAT Point Date Code | `BT-8` | `invoicePeriod.descriptionCode` | `cac:InvoicePeriod/cbc:DescriptionCode` | `xrInvoicePeriod` |
 | Payment Instructions | `BG-16`, `BT-81..83` | `payment` | `cac:PaymentMeans` | `xrPaymentMeans` |
 | Credit Transfer | `BG-17`, `BT-84..86` | `payment.payeeAccounts[]` | `cac:PayeeFinancialAccount` | `xrPaymentMeans` |
-| Payment Card | `BG-18`, `BT-87`, `BT-88` | `payment.cards[]` | `cac:CardAccount` | `xrPaymentMeans` |
-| Direct Debit | `BG-19`, `BT-89..91` | `payment.mandates[]` | `cac:PaymentMandate` | `xrPaymentMeans` |
+| Payment Card | `BG-18`, `BT-87`, `BT-88` | `payment.card` | `cac:CardAccount` | `xrPaymentMeans` |
+| Direct Debit | `BG-19`, `BT-89..91` | `payment.mandate` | `cac:PaymentMandate` | `xrPaymentMeans` |
 
 ## Summen, Steuer und Unterlagen
 
@@ -62,7 +61,7 @@ Basis:
 | Document Allowances | `BG-20`, `BT-92..98` | `documentAllowances[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
 | Document Charges | `BG-21`, `BT-99..105` | `documentCharges[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
 | Document Totals | `BG-22`, `BT-106..115` | `totals.*` | `cac:LegalMonetaryTotal` | `xrMonetaryTotal` |
-| VAT Breakdown | `BG-23`, `BT-116..121` | `vatBreakdowns[]` | `cac:TaxTotal/cac:TaxSubtotal` | `xrTaxSubtotal`, `xrTaxTotal` |
+| VAT Breakdown | `BG-23`, `BT-116..121` | `vatBreakdowns[]` | `cac:TaxTotal/cac:TaxSubtotal` | `xrTaxTotal` |
 | VAT Total in Document Currency | `BT-110` | `totals.taxAmountInDocumentCurrency` | `cac:TaxTotal/cbc:TaxAmount[@currencyID=BT-5]` | `xrTaxTotal` |
 | VAT Total in Tax Currency | `BT-111` | `totals.taxAmountInTaxCurrency` | `cac:TaxTotal/cbc:TaxAmount[@currencyID=BT-6]` | `xrTaxTotal` |
 | Supporting Documents | `BG-24`, `BT-122..125` | `supportingDocuments[]` | `cac:AdditionalDocumentReference` | `xrAdditionalDocumentReference` |
@@ -76,12 +75,12 @@ Basis:
 | Line Period | `BG-26`, `BT-134`, `BT-135` | `line.period` | `cac:InvoicePeriod` | `xrInvoicePeriod` |
 | Line Allowances | `BG-27`, `BT-136..140` | `line.allowances[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
 | Line Charges | `BG-28`, `BT-141..145` | `line.charges[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
-| Price Details | `BG-29`, `BT-146..150` | `line.price` | `cac:Price` | `xrPrice`, `xrPriceDiscount` |
+| Price Details | `BG-29`, `BT-146..150` | `line.price` | `cac:Price` | `xrPrice` |
 | Line VAT | `BG-30`, `BT-151`, `BT-152` | `line.vat` | `cac:ClassifiedTaxCategory` | `xrTaxCategory` |
 | Item Information | `BG-31`, `BT-153..159` | `line.item` | `cac:Item` | `xrItem` |
 | Item Attributes | `BG-32`, `BT-160`, `BT-161` | `line.item.attributes[]` | `cac:AdditionalItemProperty` | `xrItem` |
 
-## Wichtige Sonderfaelle im UBL-Binding
+## Sonderfaelle im UBL-Binding
 
 - `BT-8` steht semantisch oben, rendert aber in dieselbe `cac:InvoicePeriod`
   wie `BG-14`.
@@ -90,10 +89,10 @@ Basis:
 - `BT-82` ist `cbc:PaymentMeansCode/@name`, also kein eigenes XML-Element.
 - `BT-90` ist ein `cac:PartyIdentification/cbc:ID` mit `@schemeID = "SEPA"`
   am Seller oder Payee, nicht im `PaymentMandate`.
-- `BT-111` ist ein zweites `cbc:TaxAmount` in `cac:TaxTotal`, diesmal in der
+- `BT-111` ist ein weiterer `cac:TaxTotal/cbc:TaxAmount` in der
   Abrechnungswaehrung aus `BT-6`.
 
-## Praktische Lesart fuer das Template
+## Template-Prinzip
 
 - Das oeffentliche Modell soll XRechnung-semantisch bleiben, nicht DTO-nah und
   nicht UBL-nah.
