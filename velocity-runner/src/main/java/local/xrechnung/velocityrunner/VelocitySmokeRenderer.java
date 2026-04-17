@@ -7,28 +7,51 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Properties;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 /**
- * Minimal local runner for the public XRechnung Velocity templates.
+ * Minimal local runner for the semantic-model-driven XRechnung Velocity templates.
  */
 public final class VelocitySmokeRenderer {
 
   private VelocitySmokeRenderer() {
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+    try {
+      run(args);
+    } catch (IllegalArgumentException ex) {
+      System.err.println(ex.getMessage());
+      System.exit(1);
+    } catch (IOException ex) {
+      System.err.println(ex.getMessage());
+      System.exit(1);
+    } catch (Exception ex) {
+      ex.printStackTrace(System.err);
+      System.exit(1);
+    }
+  }
+
+  private static void run(String[] args) throws Exception {
     CliOptions options = CliOptions.parse(args);
+
+    if (options.checkModel) {
+      runModelCheck(options);
+      return;
+    }
+
+    if (!options.skipModelCheck) {
+      ensureModelConforms(options);
+    }
 
     VelocityEngine engine = createEngine(options.projectRoot);
     Template template = engine.getTemplate(options.templatePath, StandardCharsets.UTF_8.name());
 
     VelocityContext context = new VelocityContext();
-    context.put("xr", sampleModelForTemplate(options.templatePath));
+    context.put("xr", InvoiceModelLoader.load(options.modelPath));
     context.put("xml", XmlHelper.INSTANCE);
 
     StringWriter writer = new StringWriter();
@@ -51,8 +74,7 @@ public final class VelocitySmokeRenderer {
           ValidatorSupport.validate(
               renderedPath,
               options.projectRoot,
-              options.bundleZipPath,
-              options.validatorCacheDir);
+              options.validatorWorkDir);
       PrintStream statusStream = options.outputPath == null ? System.err : System.out;
       statusStream.print(validation.getOutput());
       if (validation.getReportXml() != null) {
@@ -69,6 +91,36 @@ public final class VelocitySmokeRenderer {
     if (options.outputPath == null) {
       System.out.print(xml);
     }
+  }
+
+  private static void runModelCheck(CliOptions options) throws IOException {
+    ModelSchemaValidator.ValidationResult validationResult =
+        ModelSchemaValidator.validate(options.projectRoot, options.modelPath);
+    if (validationResult.isSuccessful()) {
+      System.out.println(
+          "Model conforms to " + validationResult.getSchemaPath().toAbsolutePath());
+      return;
+    }
+
+    for (String message : validationResult.getMessages()) {
+      System.err.println(message);
+    }
+    throw new IOException("Model validation failed for " + options.modelPath.toAbsolutePath());
+  }
+
+  private static void ensureModelConforms(CliOptions options) throws IOException {
+    ModelSchemaValidator.ValidationResult validationResult =
+        ModelSchemaValidator.validate(options.projectRoot, options.modelPath);
+    if (validationResult.isSuccessful()) {
+      return;
+    }
+
+    for (String message : validationResult.getMessages()) {
+      System.err.println(message);
+    }
+    throw new IOException(
+        "Model validation failed for " + options.modelPath.toAbsolutePath()
+            + ". Fix the model or rerun with --no-model-check.");
   }
 
   private static VelocityEngine createEngine(Path projectRoot) throws Exception {
@@ -112,46 +164,46 @@ public final class VelocitySmokeRenderer {
     return tempDir.resolve(fileName);
   }
 
-  private static Map<String, Object> sampleModelForTemplate(String templatePath) {
-    String fileName = Paths.get(templatePath).getFileName().toString();
-    if ("ubl-invoice-core.vm".equals(fileName)) {
-      return SamplePublicInvoiceFactory.coreInvoice();
-    }
-    return SamplePublicInvoiceFactory.fullInvoice();
-  }
-
   private static final class CliOptions {
     private static final String DEFAULT_TEMPLATE = "templates/ubl-invoice-full.vm";
 
     private final Path projectRoot;
     private final String templatePath;
+    private final Path modelPath;
     private final Path outputPath;
     private final boolean validate;
-    private final Path bundleZipPath;
-    private final Path validatorCacheDir;
+    private final boolean checkModel;
+    private final boolean skipModelCheck;
+    private final Path validatorWorkDir;
 
     private CliOptions(
         Path projectRoot,
         String templatePath,
+        Path modelPath,
         Path outputPath,
         boolean validate,
-        Path bundleZipPath,
-        Path validatorCacheDir) {
+        boolean checkModel,
+        boolean skipModelCheck,
+        Path validatorWorkDir) {
       this.projectRoot = projectRoot;
       this.templatePath = templatePath;
+      this.modelPath = modelPath;
       this.outputPath = outputPath;
       this.validate = validate;
-      this.bundleZipPath = bundleZipPath;
-      this.validatorCacheDir = validatorCacheDir;
+      this.checkModel = checkModel;
+      this.skipModelCheck = skipModelCheck;
+      this.validatorWorkDir = validatorWorkDir;
     }
 
     private static CliOptions parse(String[] args) {
       Path projectRoot = Paths.get("").toAbsolutePath();
       String templatePath = DEFAULT_TEMPLATE;
+      Path modelPath = null;
       Path outputPath = null;
       boolean validate = false;
-      Path bundleZipPath = null;
-      Path validatorCacheDir = null;
+      boolean checkModel = false;
+      boolean skipModelCheck = false;
+      Path validatorWorkDir = null;
 
       for (int i = 0; i < args.length; i++) {
         String arg = args[i];
@@ -161,29 +213,43 @@ public final class VelocitySmokeRenderer {
           projectRoot = Paths.get(requireValue(args, ++i, "--project-root"));
         } else if ("--template".equals(arg)) {
           templatePath = requireValue(args, ++i, "--template");
+        } else if ("--model".equals(arg)) {
+          modelPath = Paths.get(requireValue(args, ++i, "--model"));
         } else if ("--out".equals(arg)) {
           outputPath = Paths.get(requireValue(args, ++i, "--out"));
         } else if ("--validate".equals(arg)) {
           validate = true;
-        } else if ("--bundle-zip".equals(arg)) {
-          bundleZipPath = Paths.get(requireValue(args, ++i, "--bundle-zip"));
+        } else if ("--check-model".equals(arg)) {
+          checkModel = true;
+        } else if ("--no-model-check".equals(arg)) {
+          skipModelCheck = true;
+        } else if ("--validator-work-dir".equals(arg)) {
+          validatorWorkDir = Paths.get(requireValue(args, ++i, "--validator-work-dir"));
         } else if ("--validator-cache-dir".equals(arg)) {
-          validatorCacheDir = Paths.get(requireValue(args, ++i, "--validator-cache-dir"));
+          validatorWorkDir = Paths.get(requireValue(args, ++i, "--validator-cache-dir"));
         } else if (arg.startsWith("--")) {
           System.err.println("Unknown option: " + arg);
           printUsageAndExit(2);
         } else {
-          templatePath = arg;
+          System.err.println("Unexpected argument: " + arg);
+          printUsageAndExit(2);
         }
+      }
+
+      if (modelPath == null) {
+        System.err.println("Missing required option --model");
+        printUsageAndExit(2);
       }
 
       return new CliOptions(
           projectRoot,
           templatePath,
+          modelPath,
           outputPath,
           validate,
-          bundleZipPath,
-          validatorCacheDir);
+          checkModel,
+          skipModelCheck,
+          validatorWorkDir);
     }
 
     private static String requireValue(String[] args, int index, String option) {
@@ -196,14 +262,18 @@ public final class VelocitySmokeRenderer {
 
     private static void printUsageAndExit(int statusCode) {
       System.out.println(
-          "Usage: java -jar velocity-runner.jar [--project-root DIR] [--template PATH] [--out FILE] [--validate] [--bundle-zip FILE] [--validator-cache-dir DIR]\n"
+          "Usage: java -jar velocity-runner.jar --model FILE [--project-root DIR] [--template PATH] [--out FILE] [--validate] [--check-model] [--no-model-check] [--validator-work-dir DIR]\n"
               + "Defaults:\n"
               + "  --project-root  current working directory\n"
               + "  --template      " + DEFAULT_TEMPLATE + "\n"
+              + "  --model         required, YAML or JSON with top-level xr\n"
               + "  --out           stdout\n"
               + "  --validate      off\n"
-              + "  --bundle-zip    latest bundle-docs/xrechnung-3.0.2-bundle-*.zip\n"
-              + "  --validator-cache-dir  velocity-runner/target/validator-cache");
+              + "  --no-model-check  off; render runs the schema check by default\n"
+              + "  --check-model   validate the model against semantic-model/xrechnung.schema.json and exit\n"
+              + "  --validator-work-dir  velocity-runner/target/validator-work\n"
+              + "Aliases:\n"
+              + "  --validator-cache-dir  deprecated alias for --validator-work-dir");
       System.exit(statusCode);
     }
   }

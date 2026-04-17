@@ -15,8 +15,8 @@
 
 - Aenderungen am Standard moeglichst in `yaml` und `.vm` halten.
 - Wiederkehrende UBL-Strukturen nicht immer wieder neu schreiben.
-- Das oeffentliche Zwischenmodell `$xr` stabil halten, auch wenn sich die
-  interne DTO-Struktur aendert.
+- Das semantische Rechnungsmodell unter `xr` stabil halten, auch wenn sich
+  vorgelagerte Datenquellen oder Mapping-Schritte aendern.
 - Die eigentliche `Invoice.vm` auf eine duenne Dokument-Schale reduzieren.
 
 Blockuebersicht:
@@ -66,7 +66,7 @@ Die Templates trennen drei Schichten:
 | Artikelinformationen | `BG-30..32`, `BT-151..161` | `cac:Item` | `xrItem` |
 | Rechnungsposition | `BG-25`, `BT-126..161` | `cac:InvoiceLine` | `xrInvoiceLine` |
 
-## Beispielhafte oeffentliche Modellformen
+## Beispielhafte Modellformen
 
 ### Kopf und einfache Referenzen
 
@@ -269,7 +269,7 @@ lines:
 ## Sonderformen, die explizit bleiben
 
 - `BT-8` ist semantisch top-level, rendert aber in dieselbe UBL-Struktur wie
-  `BG-14`. Im oeffentlichen Modell steckt das deshalb in
+  `BG-14`. Im Modell steckt das deshalb in
   `invoicePeriod.descriptionCode`.
 - `BT-18` und `BT-128` verwenden keine freie Dokumentreferenz, sondern
   `DocumentTypeCode = 130`.

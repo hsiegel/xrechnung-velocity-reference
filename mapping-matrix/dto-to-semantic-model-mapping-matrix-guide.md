@@ -1,19 +1,19 @@
-# DTO-to-Public Mapping Matrix Guide
+# DTO-to-Semantic-Model Mapping Matrix Guide
 
 Die Matrix beschreibt den neutralen Schritt
 
-`interne DTOs -> oeffentliches $xr-Modell`
+`interne DTOs -> semantisches $xr-Modell`
 
 und nicht das spaetere UBL-Rendering.
 
-Vorlage: [dto-to-public-mapping-matrix-template.tsv](./dto-to-public-mapping-matrix-template.tsv).
+Vorlage: [dto-to-semantic-model-mapping-matrix-template.tsv](./dto-to-semantic-model-mapping-matrix-template.tsv).
 
 ## Zweck der Matrix
 
 Die Matrix trennt sauber:
 
 - interne Herkunft eines Wertes
-- oeffentlichen Zielpfad im `$xr`-Modell
+- semantischen Zielpfad im `$xr`-Modell
 - notwendige Voraufbereitung vor Velocity
 
 Damit bleiben internes Mapping und Template-Entscheidungen voneinander getrennt.
@@ -31,8 +31,8 @@ Damit bleiben internes Mapping und Template-Entscheidungen voneinander getrennt.
 
 | Spalte | Bedeutung |
 |---|---|
-| `public_path` | Zielpfad im oeffentlichen `$xr`-Modell |
-| `term_hint` | oeffentliche XRechnung-Referenz oder Hinweis auf den Block |
+| `model_path` | Zielpfad im semantischen `$xr`-Modell |
+| `term_hint` | XRechnung-Referenz oder Hinweis auf den Block |
 | `mapping_work` | kompakte Arbeitsangabe wie `value / map`, `object / compose`, `list / repeat`; bei Bedarf mit weiterer Voraufbereitung ergaenzen |
 | `source_internal` | privat zu fuellender DTO-Pfad, Query oder Berechnungsquelle |
 | `status` | z. B. `todo`, `mapped`, `verified`, `blocked` |
@@ -58,19 +58,19 @@ Sinnvoll ist eine einheitliche, kurze Schreibweise ueber alle Zeilen hinweg.
 
 ## Fehlende Werte
 
-Beim Aufbau des Public Models gilt:
+Beim Aufbau des semantischen Modells gilt:
 
-- fehlende oder leere Quellwerte werden im Public Model weggelassen oder zu
+- fehlende oder leere Quellwerte werden im semantischen Modell weggelassen oder zu
   `null` normalisiert
 - leere Listen bleiben leer
-- Listeneintraege ohne echten Inhalt werden beim Aufbau des Public Models
+- Listeneintraege ohne echten Inhalt werden beim Aufbau des semantischen Modells
   verworfen
 
 ## Container-Zeilen
 
 - `object / compose` beschreibt einen zusammengesetzten Block.
 - `list / repeat` beschreibt eine interne Liste oder Gruppierung, aus der
-  mehrere Public-Objekte entstehen.
+  mehrere Modellobjekte entstehen.
 
 Beispiele:
 
@@ -92,17 +92,17 @@ Beispiele:
 
 ## Sonderfaelle
 
-- `BT-8` liegt im Public Model unter `xr.invoicePeriod.descriptionCode`.
-- `BT-18` und `BT-128` sind im Public Model Objektpfade mit `id` und
+- `BT-8` liegt im semantischen Modell unter `xr.invoicePeriod.descriptionCode`.
+- `BT-18` und `BT-128` sind im semantischen Modell Objektpfade mit `id` und
   `schemeId`, obwohl sie spaeter als UBL-Referenzcontainer gerendert werden.
-- `BT-82` ist Public-seitig `payment.meansText`, auch wenn es in UBL als
+- `BT-82` ist modellseitig `payment.meansText`, auch wenn es in UBL als
   Attribut rendert.
-- `BT-90` wird im Public Model bei Seller oder Payee als `sepaCreditorId`
+- `BT-90` wird im semantischen Modell bei Seller oder Payee als `sepaCreditorId`
   gefuehrt.
 - `BT-111` ist getrennt als `xr.totals.taxAmountInTaxCurrency`.
 
 ## Ablage
 
-Die oeffentliche Vorlage bleibt in diesem Repo.
+Die semantische Vorlage bleibt in diesem Repo.
 Eine befuellte Matrix mit echten `source_internal`-Eintraegen gehoert in den
 privaten Bereich oder in ein internes Repo.

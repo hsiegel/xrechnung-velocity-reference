@@ -12,7 +12,7 @@
 
 ## Kopf und Referenzen
 
-| Abschnitt | BT/BG | Empfohlener Public Path | UBL-Form | Macro/Pattern |
+| Abschnitt | BT/BG | Empfohlener Model Path | UBL-Form | Macro/Pattern |
 |---|---|---|---|---|
 | Kopfwerte | `BT-1`, `BT-2`, `BT-3`, `BT-5`, `BT-6`, `BT-7`, `BT-9`, `BT-10`, `BT-19` | `invoice.*` | `cbc:*` | Primitive Macros |
 | Notizen | `BG-1`, `BT-21`, `BT-22` | `notes[]` | `cbc:Note` | `xrNote` |
@@ -29,7 +29,7 @@
 
 ## Parteien
 
-| Block | BT/BG | Empfohlener Public Path | UBL-Form | Macro/Pattern |
+| Block | BT/BG | Empfohlener Model Path | UBL-Form | Macro/Pattern |
 |---|---|---|---|---|
 | Seller | `BG-4`, `BT-27..34` | `seller` | `cac:AccountingSupplierParty/cac:Party` | `xrNestedParty` |
 | Seller Address | `BG-5`, `BT-35..40`, `BT-162` | `seller.address` | `cac:PostalAddress` | `xrPostalAddress` |
@@ -43,7 +43,7 @@
 
 ## Lieferung und Zahlung
 
-| Block | BT/BG | Empfohlener Public Path | UBL-Form | Macro/Pattern |
+| Block | BT/BG | Empfohlener Model Path | UBL-Form | Macro/Pattern |
 |---|---|---|---|---|
 | Delivery Information | `BG-13`, `BT-70..72` | `delivery` | `cac:Delivery` | `xrDelivery` |
 | Deliver To Address | `BG-15`, `BT-75..80`, `BT-165` | `delivery.address` | `cac:Delivery/cac:DeliveryLocation/cac:Address` | `xrAddress` |
@@ -56,7 +56,7 @@
 
 ## Summen, Steuer und Unterlagen
 
-| Block | BT/BG | Empfohlener Public Path | UBL-Form | Macro/Pattern |
+| Block | BT/BG | Empfohlener Model Path | UBL-Form | Macro/Pattern |
 |---|---|---|---|---|
 | Document Allowances | `BG-20`, `BT-92..98` | `documentAllowances[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
 | Document Charges | `BG-21`, `BT-99..105` | `documentCharges[]` | `cac:AllowanceCharge` | `xrAllowanceCharge` |
@@ -68,7 +68,7 @@
 
 ## Positionen
 
-| Block | BT/BG | Empfohlener Public Path | UBL-Form | Macro/Pattern |
+| Block | BT/BG | Empfohlener Model Path | UBL-Form | Macro/Pattern |
 |---|---|---|---|---|
 | Invoice Line | `BG-25`, `BT-126`, `BT-127`, `BT-129..133` | `lines[]` | `cac:InvoiceLine` | `xrInvoiceLine` |
 | Line Object Reference | `BT-128` | `line.objectReference` | `cac:InvoiceLine/cac:DocumentReference` mit `DocumentTypeCode=130` | `xrLineObjectReference` |
@@ -94,7 +94,7 @@
 
 ## Template-Prinzip
 
-- Das oeffentliche Modell soll XRechnung-semantisch bleiben, nicht DTO-nah und
+- Das semantische Modell soll XRechnung-semantisch bleiben, nicht DTO-nah und
   nicht UBL-nah.
 - Die Dokument-Schale sollte moeglichst nur aus Macro-Aufrufen bestehen.
 - Sonderformen bleiben sichtbar, damit sie bei spaeteren Standardupdates nicht

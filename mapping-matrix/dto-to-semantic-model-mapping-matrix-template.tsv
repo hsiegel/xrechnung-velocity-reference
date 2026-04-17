@@ -1,4 +1,4 @@
-public_path	term_hint	mapping_work	source_internal	status
+model_path	term_hint	mapping_work	source_internal	status
 xr.process	BG-2	object / compose		todo
 xr.process.customizationId	BT-24	value / map		todo
 xr.process.profileId	BT-23	value / map		todo
@@ -142,8 +142,8 @@ xr.documentAllowances[].reasonCode	BT-98	value / map		todo
 xr.documentAllowances[].tax	BT-95..96	object / compose		todo
 xr.documentAllowances[].tax.categoryCode	BT-95	value / map		todo
 xr.documentAllowances[].tax.rate	BT-96	value / map		todo
-xr.documentAllowances[].tax.exemptionReason	public helper for BG-23 alignment	value / map		todo
-xr.documentAllowances[].tax.exemptionReasonCode	public helper for BG-23 alignment	value / map		todo
+xr.documentAllowances[].tax.exemptionReason	semantic-model helper for BG-23 alignment	value / map		todo
+xr.documentAllowances[].tax.exemptionReasonCode	semantic-model helper for BG-23 alignment	value / map		todo
 xr.documentCharges[]	BG-21	list / repeat		todo
 xr.documentCharges[].amount	BT-99	value / map		todo
 xr.documentCharges[].baseAmount	BT-100	value / map		todo
@@ -153,8 +153,8 @@ xr.documentCharges[].reasonCode	BT-105	value / map		todo
 xr.documentCharges[].tax	BT-102..103	object / compose		todo
 xr.documentCharges[].tax.categoryCode	BT-102	value / map		todo
 xr.documentCharges[].tax.rate	BT-103	value / map		todo
-xr.documentCharges[].tax.exemptionReason	public helper for BG-23 alignment	value / map		todo
-xr.documentCharges[].tax.exemptionReasonCode	public helper for BG-23 alignment	value / map		todo
+xr.documentCharges[].tax.exemptionReason	semantic-model helper for BG-23 alignment	value / map		todo
+xr.documentCharges[].tax.exemptionReasonCode	semantic-model helper for BG-23 alignment	value / map		todo
 xr.totals	BG-22	object / compose		todo
 xr.totals.lineExtensionAmount	BT-106	value / map		todo
 xr.totals.allowanceTotalAmount	BT-107	value / map		todo

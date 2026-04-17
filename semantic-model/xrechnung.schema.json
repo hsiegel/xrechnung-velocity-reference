@@ -1,0 +1,1126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "XRechnung Semantic Model",
+  "description": "Structural schema for semantic-model YAML or JSON documents with a top-level xr object.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "xr"
+  ],
+  "properties": {
+    "xr": {
+      "$ref": "#/$defs/xrechnung"
+    }
+  },
+  "$defs": {
+    "stringOrNull": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dateOrNull": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "decimalOrNull": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "schemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "schemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "address": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "street": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "additionalStreet": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "addressLine": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "city": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "postalCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "countrySubdivision": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "countryCode": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "phone": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "email": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "tax": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "categoryCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "rate": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "exemptionReason": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "exemptionReasonCode": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "attachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "externalUri": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "content": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "mimeCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "filename": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "listId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "listVersionId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "itemAttribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "value": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "customizationId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "profileId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "invoice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "issueDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "dueDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "typeCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "documentCurrencyCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "taxCurrencyCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "taxPointDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "buyerReference": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "accountingCost": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "note": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "text": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "invoicePeriod": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "descriptionCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "startDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "endDate": {
+          "$ref": "#/$defs/dateOrNull"
+        }
+      }
+    },
+    "orderReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "salesOrderId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "precedingInvoice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "issueDate": {
+          "$ref": "#/$defs/dateOrNull"
+        }
+      }
+    },
+    "seller": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "tradeName": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "identifiers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "sepaCreditorId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "vatIdentifier": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "taxIdentifier": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationIdSchemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalForm": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/address"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contact": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/contact"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "buyer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "tradeName": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vatIdentifier": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationIdSchemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/address"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contact": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/contact"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "payee": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sepaCreditorId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "legalRegistrationIdSchemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "taxRepresentative": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "vatIdentifier": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/address"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "partyName": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "actualDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "address": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/address"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "payeeAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "bic": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "paymentCard": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primaryAccountNumberId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "holderName": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "paymentMandate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "payerAccountId": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "payment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "meansCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "meansText": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "paymentId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "payeeAccounts": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/payeeAccount"
+          }
+        },
+        "card": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/paymentCard"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mandate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/paymentMandate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "paymentTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "note": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "documentAllowanceCharge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "baseAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "percent": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "reason": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "reasonCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "tax": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/tax"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lineExtensionAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "allowanceTotalAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "chargeTotalAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "taxExclusiveAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "taxAmountInDocumentCurrency": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "taxAmountInTaxCurrency": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "taxInclusiveAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "prepaidAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "payableRoundingAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "payableAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        }
+      }
+    },
+    "vatBreakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "taxableAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "taxAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "categoryCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "rate": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "exemptionReason": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "exemptionReasonCode": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "supportingDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "embedded": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/attachment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "linePeriod": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "startDate": {
+          "$ref": "#/$defs/dateOrNull"
+        },
+        "endDate": {
+          "$ref": "#/$defs/dateOrNull"
+        }
+      }
+    },
+    "lineAllowanceCharge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "baseAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "percent": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "reason": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "reasonCode": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "priceDiscount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "baseAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        }
+      }
+    },
+    "linePrice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "netAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "discount": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/priceDiscount"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "baseQuantity": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "baseQuantityUnitCode": {
+          "$ref": "#/$defs/stringOrNull"
+        }
+      }
+    },
+    "lineVat": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "categoryCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "rate": {
+          "$ref": "#/$defs/decimalOrNull"
+        }
+      }
+    },
+    "lineItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "description": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "sellersItemId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "buyersItemId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "standardId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "standardIdSchemeId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "classifications": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/classification"
+          }
+        },
+        "originCountryCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "attributes": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/itemAttribute"
+          }
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "note": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "objectReference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "quantityUnitCode": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "lineExtensionAmount": {
+          "$ref": "#/$defs/decimalOrNull"
+        },
+        "accountingCost": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "orderLineReference": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/linePeriod"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allowances": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/lineAllowanceCharge"
+          }
+        },
+        "charges": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/lineAllowanceCharge"
+          }
+        },
+        "price": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/linePrice"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vat": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/lineVat"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "item": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/lineItem"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "xrechnung": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "process": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/process"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "invoice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/invoice"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "notes": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/note"
+          }
+        },
+        "invoicePeriod": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/invoicePeriod"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "projectReferenceId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "contractReferenceId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "receiptReferenceId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "despatchReferenceId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "originatorReferenceId": {
+          "$ref": "#/$defs/stringOrNull"
+        },
+        "orderReference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/orderReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "precedingInvoices": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/precedingInvoice"
+          }
+        },
+        "invoiceObjectReference": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seller": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/seller"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "buyer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/buyer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payee": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/payee"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "taxRepresentative": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/taxRepresentative"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delivery": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/delivery"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/payment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "paymentTerms": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/paymentTerms"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "documentAllowances": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/documentAllowanceCharge"
+          }
+        },
+        "documentCharges": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/documentAllowanceCharge"
+          }
+        },
+        "totals": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/totals"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vatBreakdowns": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/vatBreakdown"
+          }
+        },
+        "supportingDocuments": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/supportingDocument"
+          }
+        },
+        "lines": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        }
+      }
+    }
+  }
+}

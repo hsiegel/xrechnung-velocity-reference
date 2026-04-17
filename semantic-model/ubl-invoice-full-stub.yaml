@@ -1,10 +1,10 @@
-# Public full stub for the neutral XRechnung-shaped model used by the UBL
+# Full stub for the neutral semantic XRechnung-shaped model used by the UBL
 # Invoice Velocity templates.
 #
 # Scope:
 # - XRechnung 3.0.2
 # - UBL Invoice only
-# - public intermediate model, no internal DTO details
+# - semantic model without source-system details
 #
 # Usage:
 # - remove blocks you do not use

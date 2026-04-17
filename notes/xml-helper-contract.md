@@ -96,6 +96,8 @@ Muss gelten:
 - Rueckgabe ist XML-sicher fuer Elementinhalt
 - mindestens `&`, `<` und `>` muessen escaped werden
 - sollte defensiv auch mit `"` und `'` sauber umgehen koennen
+- ungueltige XML-1.0-Zeichen sollten entfernt oder anderweitig sanitisiert
+  werden, statt den Renderlauf hart abzubrechen
 - keine Business-Defaults bilden
 - keine Datums- oder Zahlenformatierung machen
 - `null` sollte defensiv zu `""` werden duerfen, auch wenn die Templates das
@@ -112,6 +114,8 @@ Muss gelten:
 
 - Rueckgabe ist XML-sicher fuer Attributkontext
 - mindestens `&`, `<`, `>`, `"` und `'` muessen escaped werden
+- ungueltige XML-1.0-Zeichen sollten entfernt oder anderweitig sanitisiert
+  werden, statt den Renderlauf hart abzubrechen
 - keine Business-Defaults bilden
 - `null` darf defensiv zu `""` werden
 
@@ -198,6 +202,8 @@ Sinnvolle Zusatzregeln:
 - Arrays wie Collections behandeln
 - fuer Zahlen moeglichst ueber `BigDecimal` normalisieren
 - fuer `text()` und `attr()` eine zentrale XML-Escape-Funktion benutzen
+- fuer XML-Escaping ist `StringEscapeUtils.escapeXml10()` aus
+  `commons-text` ein sinnvoller Ausgangspunkt
 
 ## Kurzfassung
 

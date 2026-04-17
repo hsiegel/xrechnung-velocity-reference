@@ -13,6 +13,9 @@ Kuratierte Referenzdokumente aus dem offiziellen XRechnung-Bundle.
 - `bundle-docs/xrechnung-3.0.2-bundle-*.zip`
   Lokale Ablage fuer das originale Upstream-Bundle zur bedarfsweisen Extraktion.
   Diese Archive sind nicht Teil des versionierten Repo-Inhalts.
+- `bundle-docs/xrechnung-3.0.2-validator-configuration-*.zip`
+  Versionierte XRechnung-Validator-Konfiguration fuer lokale Validierungslaufe
+  ohne das grosse Bundle.
 
 ## Einordnung
 

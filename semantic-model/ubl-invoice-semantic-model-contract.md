@@ -1,13 +1,17 @@
-# Public Model Contract fuer `$xr`
+# Model Contract fuer `$xr`
 
-Oeffentliche Modellbeschreibung zwischen interner DTO-Aufbereitung und
-tolerantem Velocity-Rendering fuer `UBL Invoice`.
+Modellbeschreibung fuer ein semantisches `XRechnung`-Modell und
+seine Nutzung in den Werkzeugen dieses Repos fuer `UBL Invoice`.
 
 Dateien:
 
 - [ubl-invoice-full-stub.yaml](./ubl-invoice-full-stub.yaml)
 - [ubl-invoice-core-stub.yaml](./ubl-invoice-core-stub.yaml)
 - [ubl-invoice-core-mapping.yaml](./ubl-invoice-core-mapping.yaml)
+- [xrechnung.schema.json](./xrechnung.schema.json)
+
+Das Markdown hier beschreibt die Semantik fuer Menschen. Das JSON Schema ist
+die maschinenlesbare Strukturbeschreibung fuer YAML/JSON mit Top-Level `xr:`.
 
 ## Ziel
 
@@ -87,13 +91,13 @@ Dateien:
   rendert.
 - `BT-18` und `BT-128` haben eine eigene Objektform mit `id` und `schemeId`,
   weil UBL dafuer einen festen `DocumentTypeCode = 130` erwartet.
-- `BT-82` heisst im oeffentlichen Modell `payment.meansText`, obwohl es
+- `BT-82` heisst im Modell `payment.meansText`, obwohl es
   syntaktisch als `@name` an `cbc:PaymentMeansCode` haengt.
 - `BT-90` steht bei Seller oder Payee als `sepaCreditorId`, weil das dem
   UBL-Binding entspricht.
 - `BT-29` bleibt als `seller.identifiers[]` wiederholbar; `BT-46` und `BT-60`
   bleiben dagegen singulaer als `buyer.identifier` und `payee.identifier`.
-- `BT-46`, `BT-60`, `BG-18` und `BG-19` bleiben im oeffentlichen Modell
+- `BT-46`, `BT-60`, `BG-18` und `BG-19` bleiben im Modell
   singulaer.
 - `BT-111` ist in `xr.totals.taxAmountInTaxCurrency` getrennt von
   `taxAmountInDocumentCurrency`, weil daraus in UBL zwei verschiedene
@@ -105,6 +109,6 @@ Dateien:
 - Bildung von `totals`
 - Bildung von `vatBreakdowns`
 - Normalisierung leerer Strings
-- Auswahl, ob ein Feld als `null`, leer oder mit Wert in das Public Model geht
+- Auswahl, ob ein Feld als `null`, leer oder mit Wert in das Modell geht
 
 Das Template soll rendern, nicht rechnen.

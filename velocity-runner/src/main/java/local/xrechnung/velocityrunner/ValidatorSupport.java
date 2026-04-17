@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,15 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipFile;
 
 /**
- * Extracts KoSIT validator artifacts from the local XRechnung bundle and runs
- * validation against rendered XML files.
+ * Resolves the Maven-provided KoSIT validator and a committed XRechnung
+ * configuration ZIP, then runs validation against rendered XML files.
  */
 final class ValidatorSupport {
 
-  private static final String VALIDATOR_ZIP_NAME = "validator-1.6.0.zip";
   private static final String VALIDATOR_JAR_NAME = "validator-1.6.0-standalone.jar";
   private static final String CONFIG_ZIP_PREFIX = "xrechnung-3.0.2-validator-configuration-";
   private static final String CONFIG_ZIP_SUFFIX = ".zip";
@@ -37,24 +34,20 @@ final class ValidatorSupport {
   static ValidationResult validate(
       Path xmlPath,
       Path projectRoot,
-      Path bundleZipOverride,
       Path cacheDirOverride) throws Exception {
-    Path bundleZip = bundleZipOverride != null
-        ? bundleZipOverride.toAbsolutePath()
-        : resolveBundleZip(projectRoot);
-    Path cacheDir = cacheDirOverride != null
+    Path workDir = cacheDirOverride != null
         ? cacheDirOverride.toAbsolutePath()
-        : projectRoot.resolve("velocity-runner/target/validator-cache").toAbsolutePath();
+        : projectRoot.resolve("velocity-runner/target/validator-work").toAbsolutePath();
 
-    BundleArtifacts artifacts = prepareArtifacts(bundleZip, cacheDir);
+    ValidatorArtifacts artifacts = prepareArtifacts(projectRoot, workDir);
     return runValidator(xmlPath.toAbsolutePath(), artifacts.validatorJar, artifacts.configDirectory);
   }
 
-  private static Path resolveBundleZip(Path projectRoot) throws IOException {
+  private static Path resolveConfigZip(Path projectRoot) throws IOException {
     Path bundleDocs = projectRoot.resolve("bundle-docs");
     List<Path> matches = new ArrayList<Path>();
     try (DirectoryStream<Path> stream =
-        Files.newDirectoryStream(bundleDocs, "xrechnung-3.0.2-bundle-*.zip")) {
+        Files.newDirectoryStream(bundleDocs, CONFIG_ZIP_PREFIX + "*" + CONFIG_ZIP_SUFFIX)) {
       for (Path entry : stream) {
         matches.add(entry.toAbsolutePath());
       }
@@ -62,56 +55,39 @@ final class ValidatorSupport {
     Collections.sort(matches);
     if (matches.isEmpty()) {
       throw new IOException(
-          "No local XRechnung bundle ZIP found under " + bundleDocs
-              + ". Add bundle-docs/xrechnung-3.0.2-bundle-*.zip or pass --bundle-zip.");
+          "No validator configuration ZIP found under " + bundleDocs
+              + ". Add bundle-docs/" + CONFIG_ZIP_PREFIX + "*" + CONFIG_ZIP_SUFFIX + ".");
     }
     return matches.get(matches.size() - 1);
   }
 
-  private static BundleArtifacts prepareArtifacts(Path bundleZip, Path cacheDir) throws IOException {
-    Files.createDirectories(cacheDir);
-    String configZipName;
-    try (ZipFile outerZip = new ZipFile(bundleZip.toFile())) {
-      configZipName = findEntryName(outerZip, CONFIG_ZIP_PREFIX, CONFIG_ZIP_SUFFIX);
-      Path validatorDir = cacheDir.resolve(stripZipSuffix(VALIDATOR_ZIP_NAME));
-      Path configDir = cacheDir.resolve(stripZipSuffix(configZipName));
+  private static ValidatorArtifacts prepareArtifacts(Path projectRoot, Path workDir) throws IOException {
+    Files.createDirectories(workDir);
+    Path validatorJar = resolveValidatorJar(projectRoot);
+    Path configZip = resolveConfigZip(projectRoot);
+    Path configDir = workDir.resolve(stripZipSuffix(configZip.getFileName().toString()));
 
-      extractNestedZipIfNeeded(
-          outerZip,
-          VALIDATOR_ZIP_NAME,
-          validatorDir,
-          Paths.get(VALIDATOR_JAR_NAME));
-      extractNestedZipIfNeeded(
-          outerZip,
-          configZipName,
-          configDir,
-          Paths.get("resources/cii/16b/xsd/CrossIndustryInvoice_100pD16B.xsd"));
+    extractZipIfNeeded(
+        configZip,
+        configDir,
+        Paths.get("resources/cii/16b/xsd/CrossIndustryInvoice_100pD16B.xsd"));
 
-      return new BundleArtifacts(
-          validatorDir.resolve(VALIDATOR_JAR_NAME),
-          configDir);
-    }
+    return new ValidatorArtifacts(validatorJar, configDir);
   }
 
-  private static String findEntryName(ZipFile outerZip, String prefix, String suffix) throws IOException {
-    List<String> matches = new ArrayList<String>();
-    outerZip.stream().forEach(entry -> {
-      String name = entry.getName();
-      if (name.startsWith(prefix) && name.endsWith(suffix)) {
-        matches.add(name);
-      }
-    });
-    Collections.sort(matches);
-    if (matches.isEmpty()) {
+  private static Path resolveValidatorJar(Path projectRoot) throws IOException {
+    Path validatorJar =
+        projectRoot.resolve("velocity-runner/target/validator-bin").resolve(VALIDATOR_JAR_NAME).toAbsolutePath();
+    if (!Files.exists(validatorJar)) {
       throw new IOException(
-          "Bundle ZIP does not contain an entry matching " + prefix + "*" + suffix);
+          "Validator JAR not found at " + validatorJar
+              + ". Run 'mvn -f velocity-runner/pom.xml package' first.");
     }
-    return matches.get(matches.size() - 1);
+    return validatorJar;
   }
 
-  private static void extractNestedZipIfNeeded(
-      ZipFile outerZip,
-      String nestedZipName,
+  private static void extractZipIfNeeded(
+      Path zipPath,
       Path targetDir,
       Path markerRelativePath) throws IOException {
     if (Files.exists(targetDir.resolve(markerRelativePath))) {
@@ -125,12 +101,7 @@ final class ValidatorSupport {
     Files.createDirectories(parentDir);
     Path tempDir = Files.createTempDirectory(parentDir, targetDir.getFileName().toString() + ".tmp-");
 
-    ZipEntry nestedEntry = outerZip.getEntry(nestedZipName);
-    if (nestedEntry == null) {
-      throw new IOException("Bundle ZIP does not contain " + nestedZipName);
-    }
-
-    try (InputStream rawStream = outerZip.getInputStream(nestedEntry);
+    try (InputStream rawStream = Files.newInputStream(zipPath);
          ZipInputStream nestedZip = new ZipInputStream(rawStream)) {
       ZipEntry entry;
       while ((entry = nestedZip.getNextEntry()) != null) {
@@ -151,17 +122,14 @@ final class ValidatorSupport {
       }
     }
 
-    if (Files.exists(targetDir) && !Files.exists(targetDir.resolve(markerRelativePath))) {
-      deleteRecursively(targetDir);
-    }
-    if (Files.exists(targetDir.resolve(markerRelativePath))) {
-      deleteRecursively(tempDir);
-      return;
-    }
+    deleteRecursively(targetDir);
     try {
       Files.move(tempDir, targetDir, StandardCopyOption.REPLACE_EXISTING);
-    } catch (FileAlreadyExistsException alreadyExists) {
+    } catch (IOException alreadyExists) {
       deleteRecursively(tempDir);
+      if (!Files.exists(targetDir.resolve(markerRelativePath))) {
+        throw alreadyExists;
+      }
     }
   }
 
@@ -289,11 +257,11 @@ final class ValidatorSupport {
     }
   }
 
-  private static final class BundleArtifacts {
+  private static final class ValidatorArtifacts {
     private final Path validatorJar;
     private final Path configDirectory;
 
-    private BundleArtifacts(Path validatorJar, Path configDirectory) {
+    private ValidatorArtifacts(Path validatorJar, Path configDirectory) {
       this.validatorJar = validatorJar;
       this.configDirectory = configDirectory;
     }

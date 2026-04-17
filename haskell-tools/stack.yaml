@@ -1,0 +1,7 @@
+resolver: lts-24.37
+
+packages:
+  - .
+
+system-ghc: false
+install-ghc: true

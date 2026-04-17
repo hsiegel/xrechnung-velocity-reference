@@ -1,5 +1,7 @@
 package local.xrechnung.velocityrunner;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -20,7 +22,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 /**
- * XML-oriented helper object for the public Velocity templates.
+ * XML-oriented helper object for the semantic-model-driven Velocity templates.
  *
  * <p>The templates treat this class as a small rendering API that covers three
  * concerns: presence checks for optional values, XML-safe escaping for element
@@ -46,7 +48,7 @@ public final class XmlHelper {
    * value. This allows the templates to omit empty structures while still
    * rendering valid zero amounts, rates, or quantities.
    *
-   * @param value candidate value from the public {@code $xr} model
+   * @param value candidate value from the semantic {@code $xr} model
    * @return {@code true} if the value should render, otherwise {@code false}
    */
   public boolean has(Object value) {
@@ -58,9 +60,10 @@ public final class XmlHelper {
    *
    * <p>The result is safe for text nodes and does not add business defaults.
    * Missing values are converted to the empty string, although the templates
-   * normally guard such calls with {@link #has(Object)}.
+   * normally guard such calls with {@link #has(Object)}. Invalid XML 1.0
+   * characters are stripped instead of aborting the render pass.
    *
-   * @param value raw value from the public model
+   * @param value raw value from the semantic model
    * @return XML-safe element text
    */
   public String text(Object value) {
@@ -73,9 +76,10 @@ public final class XmlHelper {
    * <p>This is used for attributes such as {@code schemeID},
    * {@code currencyID}, {@code unitCode}, {@code name}, or attachment
    * metadata. The escaping rules are stricter than for element content because
-   * quotes must also be encoded.
+   * quotes must also be encoded. Invalid XML 1.0 characters are stripped
+   * instead of aborting the render pass.
    *
-   * @param value raw value from the public model
+   * @param value raw value from the semantic model
    * @return XML-safe attribute text
    */
   public String attr(Object value) {
@@ -89,7 +93,7 @@ public final class XmlHelper {
    * accepts already normalized strings as well as common Java date/time types
    * and collapses them to a plain local date without locale-specific output.
    *
-   * @param value date-like value from the public model
+   * @param value date-like value from the semantic model
    * @return formatted date or the empty string for {@code null}
    * @throws IllegalArgumentException if the value cannot be interpreted as a date
    */
@@ -132,7 +136,7 @@ public final class XmlHelper {
    * notation. Rounding is intentionally not performed here; amounts should be
    * prepared before rendering.
    *
-   * @param value amount-like value from the public model
+   * @param value amount-like value from the semantic model
    * @return plain decimal text or the empty string for {@code null}
    * @throws IllegalArgumentException if the value cannot be represented as a decimal
    */
@@ -148,7 +152,7 @@ public final class XmlHelper {
    * templates get consistent decimal output regardless of the business meaning
    * of the number.
    *
-   * @param value numeric value from the public model
+   * @param value numeric value from the semantic model
    * @return plain decimal text or the empty string for {@code null}
    * @throws IllegalArgumentException if the value cannot be represented as a decimal
    */
@@ -287,46 +291,10 @@ public final class XmlHelper {
   }
 
   private static String escapeXml(String input, boolean attributeContext) {
-    StringBuilder escaped = new StringBuilder(input.length() + 16);
-    for (int i = 0; i < input.length(); ) {
-      int codePoint = input.codePointAt(i);
-      i += Character.charCount(codePoint);
-
-      if (!isValidXml10CodePoint(codePoint)) {
-        throw new IllegalArgumentException(
-            String.format("Invalid XML 1.0 character: U+%04X", Integer.valueOf(codePoint)));
-      }
-
-      switch (codePoint) {
-        case '&':
-          escaped.append("&amp;");
-          break;
-        case '<':
-          escaped.append("&lt;");
-          break;
-        case '>':
-          escaped.append("&gt;");
-          break;
-        case '"':
-          escaped.append(attributeContext ? "&quot;" : "\"");
-          break;
-        case '\'':
-          escaped.append(attributeContext ? "&apos;" : "'");
-          break;
-        default:
-          escaped.appendCodePoint(codePoint);
-          break;
-      }
+    String escaped = StringEscapeUtils.escapeXml10(input);
+    if (attributeContext) {
+      return escaped;
     }
-    return escaped.toString();
-  }
-
-  private static boolean isValidXml10CodePoint(int codePoint) {
-    return codePoint == 0x9
-        || codePoint == 0xA
-        || codePoint == 0xD
-        || (codePoint >= 0x20 && codePoint <= 0xD7FF)
-        || (codePoint >= 0xE000 && codePoint <= 0xFFFD)
-        || (codePoint >= 0x10000 && codePoint <= 0x10FFFF);
+    return escaped.replace("&quot;", "\"").replace("&apos;", "'");
   }
 }
