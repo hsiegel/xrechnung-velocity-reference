@@ -1,4 +1,5 @@
-velocity-runner/target/
+prototypes/**/target/
+prototypes/haskell-verifier/.stack-work/
 *.class
 .codex
 .DS_Store

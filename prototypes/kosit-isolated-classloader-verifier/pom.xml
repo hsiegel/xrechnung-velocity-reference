@@ -1,0 +1,28 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>local.xrechnung</groupId>
+  <artifactId>kosit-isolated-classloader-verifier-parent</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>kosit-isolated-classloader-verifier-parent</name>
+
+  <modules>
+    <module>bridge</module>
+    <module>isolated-adapter</module>
+    <module>host</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <kosit.version>1.6.2</kosit.version>
+    <saxon.version>12.9</saxon.version>
+    <commons-lang3.version>3.20.0</commons-lang3.version>
+    <commons-io.version>2.21.0</commons-io.version>
+    <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
+    <slf4j.version>2.0.17</slf4j.version>
+  </properties>
+</project>

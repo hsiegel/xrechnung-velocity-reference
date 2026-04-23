@@ -1,0 +1,59 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.38.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           xrechnung-haskell-verifier
+version:        0.1.0.0
+license:        0BSD
+build-type:     Simple
+
+library
+  exposed-modules:
+      XRechnung
+      XRechnung.Model
+      XRechnung.SemanticModel.Yaml
+      XRechnung.Validation
+      XRechnung.Verify
+      XRechnung.Ubl.Parse
+      XRechnung.Ubl.Render
+  other-modules:
+      XRechnung.Ubl.Internal.Builder
+      Paths_xrechnung_haskell_verifier
+  autogen-modules:
+      Paths_xrechnung_haskell_verifier
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.18 && <5
+    , containers
+    , generic-lens
+    , text
+    , time
+    , xml-conduit
+    , yaml
+  default-language: Haskell2010
+
+executable xrechnung-haskell-verifier
+  main-is: Main.hs
+  other-modules:
+      Paths_xrechnung_haskell_verifier
+  autogen-modules:
+      Paths_xrechnung_haskell_verifier
+  hs-source-dirs:
+      app
+  build-depends:
+      aeson
+    , base >=4.18 && <5
+    , containers
+    , generic-lens
+    , optparse-applicative
+    , pretty-simple
+    , text
+    , time
+    , xml-conduit
+    , xrechnung-haskell-verifier
+    , yaml
+  default-language: Haskell2010

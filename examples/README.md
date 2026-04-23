@@ -15,8 +15,8 @@ Die Beispiele lassen sich mit der Haskell-CLI direkt in `UBL Invoice XML`
 umwandeln:
 
 ```bash
-cd haskell-tools
-stack run -- to-xml ../examples/ubl-invoice-core-example.yaml
+cd prototypes/haskell-verifier
+stack run xrechnung-haskell-verifier -- to-xml ../../examples/ubl-invoice-core-example.yaml
 ```
 
 Fuer Editor- und Fruehvalidierung verweisen die Beispiel-YAMLs direkt auf

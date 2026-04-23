@@ -1,0 +1,34 @@
+name: xrechnung-haskell-verifier
+version: 0.1.0.0
+license: 0BSD
+
+dependencies:
+  - aeson
+  - base >= 4.18 && < 5
+  - containers
+  - generic-lens
+  - text
+  - time
+  - yaml
+  - xml-conduit
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - XRechnung
+    - XRechnung.Model
+    - XRechnung.SemanticModel.Yaml
+    - XRechnung.Validation
+    - XRechnung.Verify
+    - XRechnung.Ubl.Parse
+    - XRechnung.Ubl.Render
+
+executables:
+  xrechnung-haskell-verifier:
+    main: Main.hs
+    source-dirs: app
+    dependencies:
+      - optparse-applicative
+      - pretty-simple
+      - text
+      - xrechnung-haskell-verifier

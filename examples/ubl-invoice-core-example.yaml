@@ -8,12 +8,16 @@ xr:
   invoice:
     id: "1234567"
     issueDate: "2018-04-13"
+    dueDate: "2018-05-13"
     typeCode: "380"
     documentCurrencyCode: EUR
     buyerReference: 90000000-03083-72
 
   seller:
     name: "[Seller name]"
+    identifiers:
+      - value: "123456789"
+        schemeId: "0088"
     endpoint:
       value: rechnungsausgang@test.com
       schemeId: EM
@@ -36,6 +40,9 @@ xr:
       postalCode: "98765"
       countryCode: DE
 
+  delivery:
+    actualDate: "2018-04-13"
+
   payment:
     meansCode: "58"
     payeeAccounts:
@@ -53,6 +60,7 @@ xr:
       taxAmount: 0
       categoryCode: O
       rate: 0
+      exemptionReason: Not subject to VAT
 
   lines:
     - id: "1"
