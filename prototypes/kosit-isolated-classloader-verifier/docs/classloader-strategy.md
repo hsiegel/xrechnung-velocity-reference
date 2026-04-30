@@ -7,15 +7,15 @@ keinen Dienst, sondern laedt die KoSIT-Welt zur Laufzeit aus
 ## Artefakte
 
 - `target/kosit-isolated-classloader-verifier.jar`
-  enthaelt Host-Code plus das kleine Bridge-Interface.
-- `target/kosit-runtime/lib/kosit-isolated-adapter.jar`
-  enthaelt die Implementierung der Bridge.
+  enthaelt nur Host-Code.
 - `target/kosit-runtime/lib/*.jar`
   enthaelt KoSIT `1.6.2` und dessen Runtime-Dependencies, darunter Saxon-HE
   `12.9`, XMLResolver, JAXB `4.x`, commons-lang3, commons-io und SLF4J.
 
 Der Host-Code hat keine KoSIT-, Saxon-, JAXB- oder XMLResolver-Dependency im
-eigenen Maven-Modul. Nur das Adapter-Modul kompiliert gegen diese Bibliotheken.
+Compile-Classpath. Das Maven-Modul deklariert diese Abhaengigkeiten mit
+Runtime-Scope, damit sie beim Build in das isolierte Runtime-Verzeichnis kopiert
+werden. Der Aufruf der KoSIT-API passiert anschliessend reflektiv.
 
 ## Parent-First
 
@@ -26,16 +26,11 @@ Diese Pakete werden parent-first geladen:
 - `sun.`
 - `com.sun.`
 - `jdk.`
-- `local.xrechnung.kositisolated.bridge.`
-
-Die Bridge muss parent-first bleiben, damit Host und isolierter Adapter
-dasselbe Interface sehen.
 
 ## Child-First
 
 Diese Pakete werden bevorzugt aus dem isolierten Runtime-Verzeichnis geladen:
 
-- `local.xrechnung.kositisolated.impl.`
 - `de.kosit.`
 - `net.sf.saxon.`
 - `org.xmlresolver.`
@@ -70,17 +65,19 @@ vor allem:
 
 ## Thread Context ClassLoader
 
-Der Host setzt waehrend des Bridge-Aufrufs den Thread Context ClassLoader auf
-den isolierten ClassLoader und stellt ihn danach wieder her. Das ist wichtig
-fuer ServiceLoader-, JAXP-, JAXB- und Logging-Mechanismen, die nicht nur den
-definierenden ClassLoader einer Klasse, sondern den Context ClassLoader nutzen.
+Der Host setzt waehrend des reflektiven KoSIT-Aufrufs den Thread Context
+ClassLoader auf den isolierten ClassLoader und stellt ihn danach wieder her. Das
+ist wichtig fuer ServiceLoader-, JAXP-, JAXB- und Logging-Mechanismen, die nicht
+nur den definierenden ClassLoader einer Klasse, sondern den Context ClassLoader
+nutzen.
 
 Produktionscode muesste diese Regel auch bei Worker-Threads, Pools und
 parallelen Validierungen konsequent durchhalten.
 
 ## Diagnose
 
-Mit `--diagnostics` prueft der Adapter exemplarisch diese Klassen:
+Mit `--diagnostics` prueft der Host ueber den isolierten ClassLoader
+exemplarisch diese Klassen:
 
 - `de.kosit.validationtool.api.Check`
 - `de.kosit.validationtool.impl.DefaultCheck`

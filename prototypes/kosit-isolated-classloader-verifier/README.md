@@ -5,8 +5,8 @@ innerhalb derselben JVM ausfuehren kann, ohne KoSIT, Saxon, JAXB oder
 XMLResolver im normalen Host-Classpath zu haben.
 
 Die KoSIT-Welt wird zur Laufzeit aus `target/kosit-runtime/lib/` in einen
-eigenen `URLClassLoader` geladen. Der Host ruft nur ein kleines eigenes
-Bridge-Interface auf.
+eigenen `URLClassLoader` geladen. Der Host ruft die benoetigten KoSIT-Klassen
+direkt reflektiv aus diesem isolierten ClassLoader auf.
 
 ## Zweck
 
@@ -20,8 +20,9 @@ Der Nachweis ist bewusst eng:
 - kein Kindprozess
 - kein HTTP
 - kein MCP
-- Host-Code ohne KoSIT-Compile-Dependency
-- KoSIT-Code nur im isolierten Adapter
+- Host-Code ohne KoSIT-Compile-Imports
+- KoSIT-Jars nur im isolierten Runtime-Verzeichnis
+- kein selbst gebautes Adapter- oder Stub-Jar
 
 ## Was dieser Spike beweist / was er nicht beweist
 
@@ -29,8 +30,8 @@ Der Spike beweist:
 
 - Das Host-Jar startet ohne KoSIT, Saxon, JAXB, XMLResolver oder SLF4J im
   normalen Host-Classpath.
-- Die Bridge-Implementierung wird reflektiv aus `target/kosit-runtime/lib/`
-  geladen.
+- Die KoSIT-API wird reflektiv aus `target/kosit-runtime/lib/` geladen und
+  aufgerufen.
 - KoSIT-nahe Konfliktklassen wie `net.sf.saxon.Version`,
   `jakarta.xml.bind.JAXBContext` und `org.slf4j.LoggerFactory` kommen aus dem
   isolierten Runtime-Verzeichnis.
@@ -49,6 +50,8 @@ Der Spike beweist noch nicht:
   Prozessgrenze.
 - dass austauschbare Runtime- oder Bundle-Verzeichnisse bereits ausreichend
   gegen Manipulation abgesichert sind.
+- dass die reflektiv genutzten KoSIT-Signaturen ueber andere KoSIT-Versionen
+  hinweg stabil bleiben.
 
 ## Unterschied zum Embedded Verifier
 
@@ -59,11 +62,40 @@ Prototyps.
 Dieser Prototyp trennt dagegen:
 
 - `host/`
-  baut das ausfuehrbare CLI-Jar und kennt nur JDK plus Bridge.
-- `bridge/`
-  enthaelt `VerifierBridge` als kleine eigene Grenze zwischen Host und Adapter.
-- `isolated-adapter/`
-  kompiliert gegen KoSIT `1.6.2` und wird erst zur Laufzeit vom Host geladen.
+  baut das ausfuehrbare CLI-Jar. Der Code importiert keine KoSIT-, Saxon-,
+  JAXB- oder XMLResolver-Klassen, sondern greift darauf nur ueber Reflection
+  zu.
+- `target/kosit-runtime/lib/`
+  enthaelt nach dem Build KoSIT `1.6.2` und dessen Runtime-Dependencies. Diese
+  Jars werden erst zur Laufzeit in den isolierten ClassLoader aufgenommen.
+
+Das `host`-Modul deklariert die KoSIT-Abhaengigkeiten mit Runtime-Scope nur,
+damit Maven die passenden Jars kopieren kann. Sie werden nicht in das
+ausfuehrbare Host-Jar gepackt.
+
+## Zentrale Klassen
+
+- `IsolatedKositVerifierCli`
+  loest Modul- und Repository-Pfade auf, sammelt die Runtime-Jars, erstellt den
+  isolierten ClassLoader und setzt fuer den Aufruf den Thread Context
+  ClassLoader. Nach dem Aufruf wird der vorherige Context ClassLoader wieder
+  hergestellt.
+- `ChildFirstUrlClassLoader`
+  laedt KoSIT-nahe Pakete wie `de.kosit.`, `net.sf.saxon.`, `jakarta.xml.bind.`
+  und `org.slf4j.` bevorzugt aus `target/kosit-runtime/lib/`, waehrend JDK-
+  Pakete parent-first bleiben.
+- `ReflectiveKositValidator`
+  ist die direkte KoSIT-Grenze ohne KoSIT-Imports. Die Klasse laedt
+  `ProcessorProvider`, `Configuration`, `DefaultCheck` und `ByteArrayInput` per
+  Klassennamen, baut daraus den KoSIT-Check und bildet das KoSIT-`Result` auf
+  das JSON-Ergebnis ab. Sie entpackt ausserdem das Konfigurations-ZIP in das
+  Arbeitsverzeichnis.
+- `KositRuntimeDiagnostics`
+  prueft ausgewaehlte Konfliktklassen und JAXP-Factories und meldet
+  ClassLoader, CodeSource und Versionen.
+- `JsonSupport`
+  serialisiert das technische Ergebnis ohne weitere JSON-Abhaengigkeit im
+  Host-Jar.
 
 ## Build
 
@@ -76,13 +108,11 @@ mvn -f prototypes/kosit-isolated-classloader-verifier/pom.xml package
 Der Build erzeugt:
 
 - `prototypes/kosit-isolated-classloader-verifier/target/kosit-isolated-classloader-verifier.jar`
-- `prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib/kosit-isolated-adapter.jar`
 - KoSIT und Runtime-Dependencies unter
   `prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib/`
 
-Das Host-Modul haengt dabei nur vom lokalen `bridge`-Modul ab. KoSIT, Saxon,
-JAXB, XMLResolver und SLF4J stehen ausschliesslich am isolierten Adapter und im
-kopierten Runtime-Verzeichnis.
+Das Host-Jar enthaelt nur Host-Code. KoSIT, Saxon, JAXB, XMLResolver und SLF4J
+liegen ausschliesslich als externe Jars im kopierten Runtime-Verzeichnis.
 
 ## Aufruf
 
@@ -122,8 +152,8 @@ java -jar prototypes/kosit-isolated-classloader-verifier/target/kosit-isolated-c
 - `--xml <path>`
   Pflicht fuer Validierungen; XML-Datei, die validiert werden soll.
 - `--diagnostics-only`
-  Optional; laedt nur `target/kosit-runtime/lib/`, instanziiert den isolierten
-  Adapter und gibt ClassLoader-/CodeSource-Diagnosen aus.
+  Optional; laedt nur `target/kosit-runtime/lib/` und gibt
+  ClassLoader-/CodeSource-Diagnosen aus.
 - `--config <zip>`
   Optional; Default ist das passende
   `bundle-docs/xrechnung-3.0.2-validator-configuration-*.zip`.
@@ -155,7 +185,7 @@ Darunter steht ein kompaktes JSON-Ergebnis. Das Format ist in
 Der Prototyp kopiert keine Inhalte aus `bundle-docs/` ins Modul. Stattdessen
 findet der Host das commitete ZIP
 `bundle-docs/xrechnung-3.0.2-validator-configuration-*.zip`, uebergibt den Pfad
-an die isolierte Bridge und der Adapter entpackt das ZIP bei Bedarf nach
+an den reflektiven KoSIT-Aufruf und entpackt das ZIP bei Bedarf nach
 `target/validator-work/`.
 
 Die aktuelle Extraktion nutzt fuer den Spike einen Marker im entpackten Bundle,

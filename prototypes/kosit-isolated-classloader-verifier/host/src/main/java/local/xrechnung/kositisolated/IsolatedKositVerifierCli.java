@@ -1,9 +1,7 @@
 package local.xrechnung.kositisolated;
 
-import local.xrechnung.kositisolated.bridge.VerifierBridge;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -25,8 +23,6 @@ public final class IsolatedKositVerifierCli {
   private static final int EXIT_REJECTED = 1;
   private static final int EXIT_ERROR = 2;
   private static final int EXIT_USAGE = 64;
-  private static final String BRIDGE_IMPL =
-      "local.xrechnung.kositisolated.impl.KositVerifierBridgeImpl";
   private static final String CONFIG_ZIP_PATTERN =
       "xrechnung-3.0.2-validator-configuration-*.zip";
   private static final String SIMPLE_LOG_LEVEL_PROPERTY =
@@ -107,19 +103,12 @@ public final class IsolatedKositVerifierCli {
       ClassLoader previousContextClassLoader = thread.getContextClassLoader();
       thread.setContextClassLoader(isolatedClassLoader);
       try {
-        Class<?> implementationClass =
-            Class.forName(BRIDGE_IMPL, true, isolatedClassLoader);
-        Constructor<?> constructor = implementationClass.getDeclaredConstructor();
-        VerifierBridge bridge = (VerifierBridge) constructor.newInstance();
-        try {
-          Map<String, Object> result = cliOptions.diagnosticsOnly
-              ? bridge.diagnostics(diagnosticsRequestMap(runtimeLibDir))
-              : bridge.verify(validationRequestMap(cliOptions, repoRoot, moduleRoot));
-          enrichHostDiagnostics(result, hostClassLoader, isolatedClassLoader, runtimeLibDir);
-          return result;
-        } finally {
-          bridge.close();
-        }
+        ReflectiveKositValidator validator = new ReflectiveKositValidator(isolatedClassLoader);
+        Map<String, Object> result = cliOptions.diagnosticsOnly
+            ? validator.diagnostics(diagnosticsRequestMap(runtimeLibDir))
+            : validator.verify(validationRequestMap(cliOptions, repoRoot, moduleRoot));
+        enrichHostDiagnostics(result, hostClassLoader, isolatedClassLoader, runtimeLibDir);
+        return result;
       } finally {
         thread.setContextClassLoader(previousContextClassLoader);
       }
@@ -197,7 +186,7 @@ public final class IsolatedKositVerifierCli {
     Collections.sort(jars, new Comparator<Path>() {
       @Override
       public int compare(Path left, Path right) {
-        return jarSortKey(left).compareTo(jarSortKey(right));
+        return left.getFileName().toString().compareTo(right.getFileName().toString());
       }
     });
     if (jars.isEmpty()) {
@@ -209,11 +198,6 @@ public final class IsolatedKositVerifierCli {
       urls[index] = jars.get(index).toUri().toURL();
     }
     return urls;
-  }
-
-  private static String jarSortKey(Path jar) {
-    String name = jar.getFileName().toString();
-    return name.startsWith("kosit-isolated-adapter") ? "0-" + name : "1-" + name;
   }
 
   private static Path findConfigZip(Path repoRoot) throws IOException {

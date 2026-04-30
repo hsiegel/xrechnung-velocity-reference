@@ -12,11 +12,9 @@ public final class ChildFirstUrlClassLoader extends URLClassLoader {
       "javax.",
       "sun.",
       "com.sun.",
-      "jdk.",
-      "local.xrechnung.kositisolated.bridge.");
+      "jdk.");
 
   private static final List<String> CHILD_FIRST_PREFIXES = Arrays.asList(
-      "local.xrechnung.kositisolated.impl.",
       "de.kosit.",
       "net.sf.saxon.",
       "org.xmlresolver.",

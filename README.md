@@ -245,7 +245,8 @@ java -jar prototypes/kosit-isolated-classloader-verifier/target/kosit-isolated-c
 
 Dieser Prototyp laedt KoSIT `1.6.2` samt Saxon, JAXB, XMLResolver und SLF4J
 zur Laufzeit aus `prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib/`.
-Das Host-Jar selbst enthaelt nur Host-Code und die kleine Bridge-Schnittstelle.
+Das Host-Jar selbst enthaelt nur Host-Code und ruft KoSIT aus dem isolierten
+ClassLoader reflektiv auf; ein zusaetzliches eigenes Adapter-Jar gibt es nicht.
 Mit `--diagnostics` wird sichtbar, aus welchen Jars Konfliktklassen wie
 `net.sf.saxon.Version` und `org.slf4j.LoggerFactory` geladen wurden.
 

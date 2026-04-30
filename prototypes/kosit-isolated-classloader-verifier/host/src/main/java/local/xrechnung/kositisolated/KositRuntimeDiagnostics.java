@@ -1,4 +1,4 @@
-package local.xrechnung.kositisolated.impl;
+package local.xrechnung.kositisolated;
 
 import java.lang.reflect.Method;
 import java.security.CodeSource;
