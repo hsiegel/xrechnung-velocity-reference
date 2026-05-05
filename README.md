@@ -67,7 +67,8 @@ Aktuell gibt es hier acht praktische Prototypen:
   vorhandene XML-Dateien.
 - `prototypes/kosit-isolated-classloader-verifier/`
   Same-VM-Prototyp, der KoSIT `1.6.2` ueber einen isolierten URLClassLoader
-  laedt, ohne KoSIT/Saxon/JAXB in den Host-Classpath zu legen.
+  laedt. KoSIT/Saxon/JAXB liegen als Ressourcen im Host-Jar und werden vor dem
+  isolierten Aufruf lokal gestaged, ohne in den Host-Classpath zu geraten.
 - `prototypes/saxon-output-verifier-spike/`
   Bewusst kleiner Java-Verifier-Kern fuer einen moeglichen Saxon-HE-
   Eigenbau; Architektur, Risiken und Update-Folgen stehen in der README.
@@ -90,7 +91,7 @@ Aktuell gibt es hier acht praktische Prototypen:
 |---|---|---|---|---|
 | [`velocity-renderer`](./prototypes/velocity-renderer/) | rendert die Velocity-Templates und kann optional direkt validieren | Velocity 1.6.4 plus KoSIT-Standalone-JAR fuer `--validate` | semantisches YAML/JSON-Modell | UBL-XML, optional KoSIT-XML-/HTML-Reports; Referenzpfad fuer Template-Smokes |
 | [`kosit-embedded-verifier`](./prototypes/kosit-embedded-verifier/) | validiert vorhandene Rechnungs-XML | embedded KoSIT-Validator-API | XML-Datei | Konsolenergebnis und XML-Report; klein gehaltener embedded Vergleichspfad |
-| [`kosit-isolated-classloader-verifier`](./prototypes/kosit-isolated-classloader-verifier/) | validiert in derselben JVM mit isolierter KoSIT-Welt | Host-Jar plus isolierter URLClassLoader fuer KoSIT `1.6.2` und moderne Dependencies | XML-Datei | `ACCEPTED`/`REJECTED`/`ERROR`, XML-Report, JSON-Ergebnis und optionale ClassLoader-Diagnose |
+| [`kosit-isolated-classloader-verifier`](./prototypes/kosit-isolated-classloader-verifier/) | validiert in derselben JVM mit isolierter KoSIT-Welt | Host-Jar mit KoSIT-Ressourcen, lokales Staging und isolierter URLClassLoader | XML-Datei | `ACCEPTED`/`REJECTED`/`ERROR`, XML-Report, JSON-Ergebnis und optionale ClassLoader-Diagnose |
 | [`kosit-verification-mcp-service`](./prototypes/kosit-verification-mcp-service/) | stellt KoSIT-Validierung lokal per MCP bereit | STDIO-MCP-Service mit wiederverwendeter embedded KoSIT-Instanz | `xmlPath` oder `xmlContent` | strukturiertes JSON, optional `input.xml`, `result.json`, `report.xml` als Run-Artefakte |
 | [`kosit-via-mcp-verifier`](./prototypes/kosit-via-mcp-verifier/) | validiert ueber den lokalen MCP-Service statt direkt ueber KoSIT | Java-MCP-Client startet Service als Kindprozess | XML-Datei oder Inline-XML | `ACCEPTED`/`REJECTED`/`TECHNICAL_FAILURE` plus gemapptes JSON |
 | [`kosit-via-http-verifier`](./prototypes/kosit-via-http-verifier/) | validiert ueber einen lokalen HTTP-Worker statt direkt ueber KoSIT | Java-Client startet lazy ein Worker-Kindprozess-JAR auf `127.0.0.1` | XML-Datei oder Inline-XML | `ACCEPTED`/`REJECTED`/`TECHNICAL_FAILURE` plus gemapptes JSON |
@@ -243,10 +244,11 @@ java -jar prototypes/kosit-isolated-classloader-verifier/target/kosit-isolated-c
   --diagnostics
 ```
 
-Dieser Prototyp laedt KoSIT `1.6.2` samt Saxon, JAXB, XMLResolver und SLF4J
-zur Laufzeit aus `prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib/`.
-Das Host-Jar selbst enthaelt nur Host-Code und ruft KoSIT aus dem isolierten
-ClassLoader reflektiv auf; ein zusaetzliches eigenes Adapter-Jar gibt es nicht.
+Dieser Prototyp packt KoSIT `1.6.2` samt Saxon, JAXB, XMLResolver, SLF4J und
+Validator-Konfiguration als Ressourcen ins Host-Jar. Beim ersten Zugriff werden
+diese Ressourcen lokal gestaged; erst die kopierten Runtime-Jars werden in den
+isolierten ClassLoader aufgenommen. KoSIT wird reflektiv aufgerufen, ein
+zusaetzliches eigenes Adapter-Jar gibt es nicht.
 Mit `--diagnostics` wird sichtbar, aus welchen Jars Konfliktklassen wie
 `net.sf.saxon.Version` und `org.slf4j.LoggerFactory` geladen wurden.
 

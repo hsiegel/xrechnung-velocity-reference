@@ -4,8 +4,12 @@ Dieser Prototyp zeigt, wie ein Host-Java-Programm KoSIT Validator `1.6.2`
 innerhalb derselben JVM ausfuehren kann, ohne KoSIT, Saxon, JAXB oder
 XMLResolver im normalen Host-Classpath zu haben.
 
-Die KoSIT-Welt wird zur Laufzeit aus `target/kosit-runtime/lib/` in einen
-eigenen `URLClassLoader` geladen. Der Host ruft die benoetigten KoSIT-Klassen
+Die KoSIT-Welt liegt im ausfuehrbaren Host-Jar als Classpath-Ressource:
+KoSIT- und Runtime-Jars unter `kosit-isolated/runtime-lib/`, die
+XRechnung-Konfiguration als ZIP unter `kosit-isolated/config/`. Beim ersten
+Zugriff werden diese Ressourcen in ein Staging-Verzeichnis auf dem lokalen
+Dateisystem kopiert. Erst diese kopierten Jars werden in einen eigenen
+`URLClassLoader` aufgenommen. Der Host ruft die benoetigten KoSIT-Klassen
 direkt reflektiv aus diesem isolierten ClassLoader auf.
 
 ## Zweck
@@ -21,7 +25,7 @@ Der Nachweis ist bewusst eng:
 - kein HTTP
 - kein MCP
 - Host-Code ohne KoSIT-Compile-Imports
-- KoSIT-Jars nur im isolierten Runtime-Verzeichnis
+- KoSIT-Jars nur als Ressourcen oder gestagte Dateien, nicht als Host-Klassen
 - kein selbst gebautes Adapter- oder Stub-Jar
 
 ## Was dieser Spike beweist / was er nicht beweist
@@ -30,11 +34,14 @@ Der Spike beweist:
 
 - Das Host-Jar startet ohne KoSIT, Saxon, JAXB, XMLResolver oder SLF4J im
   normalen Host-Classpath.
-- Die KoSIT-API wird reflektiv aus `target/kosit-runtime/lib/` geladen und
-  aufgerufen.
+- Die KoSIT-API wird reflektiv aus einem gestagten Runtime-Verzeichnis geladen
+  und aufgerufen.
+- KoSIT-Runtime-Jars und Konfigurations-ZIP koennen aus Classpath-Ressourcen
+  materialisiert werden, wenn die urspruenglichen Dateien nicht direkt als
+  normale Files vorliegen.
 - KoSIT-nahe Konfliktklassen wie `net.sf.saxon.Version`,
   `jakarta.xml.bind.JAXBContext` und `org.slf4j.LoggerFactory` kommen aus dem
-  isolierten Runtime-Verzeichnis.
+  isolierten gestagten Runtime-Verzeichnis.
 - JAXP-Factories werden waehrend des isolierten Aufrufs mit gesetztem Thread
   Context ClassLoader diagnostiziert.
 - Eine Rechnung kann in derselben JVM validiert und als KoSIT-XML-Report
@@ -64,38 +71,78 @@ Dieser Prototyp trennt dagegen:
 - `host/`
   baut das ausfuehrbare CLI-Jar. Der Code importiert keine KoSIT-, Saxon-,
   JAXB- oder XMLResolver-Klassen, sondern greift darauf nur ueber Reflection
-  zu.
+  zu. Jackson liegt im Host-Jar, weil JSON auf der Host-Seite erzeugt wird.
+- `kosit-isolated/runtime-lib/`
+  liegt im Host-Jar als Ressourcenverzeichnis und enthaelt die KoSIT-Runtime-
+  Jars, die beim ersten Zugriff in ein lokales Staging-Verzeichnis kopiert
+  werden.
+- `kosit-isolated/config/`
+  liegt ebenfalls als Ressource im Host-Jar und enthaelt das versionierte
+  Validator-Konfigurations-ZIP.
 - `target/kosit-runtime/lib/`
-  enthaelt nach dem Build KoSIT `1.6.2` und dessen Runtime-Dependencies. Diese
-  Jars werden erst zur Laufzeit in den isolierten ClassLoader aufgenommen.
+  enthaelt nach dem Build weiterhin KoSIT `1.6.2` und dessen
+  Runtime-Dependencies. Dieser Pfad ist ein expliziter Dateisystem-Modus fuer
+  lokale Vergleiche und Integrationen, die die Jars bewusst ausserhalb des
+  Host-Jars bereitstellen wollen.
 
 Das `host`-Modul deklariert die KoSIT-Abhaengigkeiten mit Runtime-Scope nur,
-damit Maven die passenden Jars kopieren kann. Sie werden nicht in das
-ausfuehrbare Host-Jar gepackt.
+damit Maven die passenden Jars als Ressourcen und fuer den optionalen
+Dateisystem-Modus kopieren kann. Die KoSIT-Klassen werden nicht in das
+ausfuehrbare Host-Jar geshaded.
 
 ## Zentrale Klassen
 
 - `IsolatedKositVerifierCli`
-  loest Modul- und Repository-Pfade auf, sammelt die Runtime-Jars, erstellt den
-  isolierten ClassLoader und setzt fuer den Aufruf den Thread Context
-  ClassLoader. Nach dem Aufruf wird der vorherige Context ClassLoader wieder
-  hergestellt.
+  koordiniert den Host-Ablauf: CLI-Optionen lesen, Runtime-Umgebung bestimmen,
+  isolierten ClassLoader erstellen, Thread Context ClassLoader setzen und nach
+  dem Aufruf wieder herstellen.
+
+  Skizze: Ohne `--runtime-lib-dir` und ohne `--config` wird der
+  Classpath-Ressourcenmodus verwendet. Dann ruft die CLI
+  `ClasspathRuntimeStager` auf und uebergibt anschliessend die gestagten Pfade
+  an `ReflectiveKositValidator`. Mit expliziten Pfaden bleibt der alte
+  Dateisystem-Modus erhalten.
+- `ClasspathRuntimeStager`
+  materialisiert die im Host-Jar liegenden Ressourcen in ein lokales
+  Staging-Verzeichnis.
+
+  Skizze: Die Klasse liest `kosit-isolated/runtime-jars.list`, kopiert jede
+  genannte Jar aus `kosit-isolated/runtime-lib/` nach `runtime-lib/`, kopiert
+  das Konfigurations-ZIP nach `config/` und liefert die Pfade fuer Runtime,
+  Workdir und Reports zurueck. Bei Default-Temp-Staging wird das Ergebnis in
+  der JVM gecacht und beim Prozessende best effort aufgeraeumt.
 - `ChildFirstUrlClassLoader`
   laedt KoSIT-nahe Pakete wie `de.kosit.`, `net.sf.saxon.`, `jakarta.xml.bind.`
-  und `org.slf4j.` bevorzugt aus `target/kosit-runtime/lib/`, waehrend JDK-
-  Pakete parent-first bleiben.
+  und `org.slf4j.` bevorzugt aus dem gestagten Runtime-Verzeichnis, waehrend
+  JDK-Pakete parent-first bleiben.
+
+  Skizze: Fuer bekannte Konfliktpakete wird zuerst `findClass` im isolierten
+  Loader versucht. JDK-nahe Pakete laufen parent-first, damit keine
+  Plattformklassen ueberschattet werden.
 - `ReflectiveKositValidator`
   ist die direkte KoSIT-Grenze ohne KoSIT-Imports. Die Klasse laedt
   `ProcessorProvider`, `Configuration`, `DefaultCheck` und `ByteArrayInput` per
   Klassennamen, baut daraus den KoSIT-Check und bildet das KoSIT-`Result` auf
   das JSON-Ergebnis ab. Sie entpackt ausserdem das Konfigurations-ZIP in das
   Arbeitsverzeichnis.
+
+  Skizze: Die Methode `verify` bekommt nur Strings/Pfade aus dem Host. Innerhalb
+  des isolierten Context ClassLoaders entpackt sie die Konfiguration, erzeugt
+  KoSIT-Objekte per Reflection, schreibt den XML-Report und mappt zentrale
+  Result-Felder sowie Meldungen in einfache Maps und Listen.
 - `KositRuntimeDiagnostics`
   prueft ausgewaehlte Konfliktklassen und JAXP-Factories und meldet
   ClassLoader, CodeSource und Versionen.
+
+  Skizze: Die Diagnose laedt typische Konfliktklassen ueber den isolierten
+  ClassLoader und dokumentiert deren CodeSource. Damit ist sofort sichtbar, ob
+  z. B. Saxon wirklich aus dem gestagten Runtime-Verzeichnis kommt.
 - `JsonSupport`
-  serialisiert das technische Ergebnis ohne weitere JSON-Abhaengigkeit im
-  Host-Jar.
+  serialisiert das technische Ergebnis mit Jackson auf der Host-Seite.
+
+  Skizze: Der isolierte KoSIT-Teil liefert nur JDK-Maps, Listen und skalare
+  Werte. `JsonSupport` macht daraus im Host-Classpath das JSON-Ergebnis; Jackson
+  wird deshalb nicht in den isolierten KoSIT-Runtime-Classpath kopiert.
 
 ## Build
 
@@ -111,8 +158,15 @@ Der Build erzeugt:
 - KoSIT und Runtime-Dependencies unter
   `prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib/`
 
-Das Host-Jar enthaelt nur Host-Code. KoSIT, Saxon, JAXB, XMLResolver und SLF4J
-liegen ausschliesslich als externe Jars im kopierten Runtime-Verzeichnis.
+Das Host-Jar enthaelt Host-Code, Jackson und die KoSIT-Welt als Ressourcen:
+
+- `kosit-isolated/runtime-jars.list`
+- `kosit-isolated/runtime-lib/*.jar`
+- `kosit-isolated/config/xrechnung-3.0.2-validator-configuration-2026-01-31.zip`
+
+KoSIT, Saxon, JAXB, XMLResolver und SLF4J liegen darin nicht als geshadete
+Host-Klassen, sondern als kopierbare Ressourcen fuer den isolierten
+ClassLoader.
 
 ## Aufruf
 
@@ -152,17 +206,26 @@ java -jar prototypes/kosit-isolated-classloader-verifier/target/kosit-isolated-c
 - `--xml <path>`
   Pflicht fuer Validierungen; XML-Datei, die validiert werden soll.
 - `--diagnostics-only`
-  Optional; laedt nur `target/kosit-runtime/lib/` und gibt
+  Optional; staged bzw. laedt nur die isolierte Runtime und gibt
   ClassLoader-/CodeSource-Diagnosen aus.
 - `--config <zip>`
-  Optional; Default ist das passende
-  `bundle-docs/xrechnung-3.0.2-validator-configuration-*.zip`.
+  Optional; schaltet in den expliziten Dateisystem-Modus. Ohne diese Option
+  wird das Konfigurations-ZIP aus den Classpath-Ressourcen gestaged.
 - `--runtime-lib-dir <path>`
-  Optional; Default ist `target/kosit-runtime/lib`.
+  Optional; schaltet in den expliziten Dateisystem-Modus. Ohne diese Option
+  werden die Runtime-Jars aus den Classpath-Ressourcen gestaged.
+- `--stage-dir <path>`
+  Optional; Zielverzeichnis fuer Classpath-Staging. Ohne diese Option wird ein
+  temporaeres Verzeichnis angelegt.
 - `--work-dir <path>`
-  Optional; Default ist `target/validator-work`.
+  Optional; Default ist im Classpath-Modus das gestagte `validator-work/`, im
+  Dateisystem-Modus `target/validator-work`.
 - `--report-out <path>`
-  Optional; Default ist `target/reports/<xml-name>-report.xml`.
+  Optional; Default ist im Classpath-Modus das gestagte `reports/`, im
+  Dateisystem-Modus `target/reports/<xml-name>-report.xml`.
+  Fuer dauerhaft zu inspizierende Reports im Classpath-Modus sollte ein
+  expliziter Pfad gesetzt werden, weil temporaeres Default-Staging beim
+  Prozessende aufgeraeumt wird.
 - `--json-out <path>`
   Optional; schreibt das JSON-Ergebnis zusaetzlich auf Platte.
 - `--diagnostics`
@@ -182,11 +245,15 @@ Darunter steht ein kompaktes JSON-Ergebnis. Das Format ist in
 
 ## Bundle-Nutzung
 
-Der Prototyp kopiert keine Inhalte aus `bundle-docs/` ins Modul. Stattdessen
-findet der Host das commitete ZIP
-`bundle-docs/xrechnung-3.0.2-validator-configuration-*.zip`, uebergibt den Pfad
-an den reflektiven KoSIT-Aufruf und entpackt das ZIP bei Bedarf nach
-`target/validator-work/`.
+Der Prototyp nutzt das commitete ZIP aus `bundle-docs/` beim Build als
+kuratierte gemeinsame Ressource. Zur Laufzeit muss dieses ZIP im Default-Modus
+nicht als normale Datei neben der Anwendung liegen: Es steckt im Host-Jar unter
+`kosit-isolated/config/`, wird in das Staging-Verzeichnis kopiert und vom
+reflektiven KoSIT-Aufruf nach `validator-work/` entpackt.
+
+Fuer lokale Vergleiche kann mit `--config` weiterhin ein ZIP aus dem
+Dateisystem uebergeben werden. Dann wird kein Classpath-Staging fuer die
+Konfiguration verwendet.
 
 Die aktuelle Extraktion nutzt fuer den Spike einen Marker im entpackten Bundle,
 um wiederholte Laeufe schnell zu halten. Fuer Produktion reicht das nicht:
@@ -202,8 +269,10 @@ Die Details stehen in
 
 Besonders wichtig ist `--diagnostics`: Damit sieht man fuer Konfliktklassen wie
 `net.sf.saxon.Version` und `org.slf4j.LoggerFactory`, aus welcher Jar sie
-geladen wurden. Fuer Saxon sollte die CodeSource auf
-`target/kosit-runtime/lib/Saxon-HE-12.9.jar` zeigen.
+geladen wurden. Im Default-Modus sollte die CodeSource auf ein temporaeres oder
+per `--stage-dir` gesetztes Staging-Verzeichnis zeigen, z. B.
+`.../runtime-lib/Saxon-HE-12.9.jar`. Im expliziten Dateisystem-Modus zeigt sie
+auf das angegebene `--runtime-lib-dir`.
 
 `--diagnostics-only` fuehrt dieselbe Diagnose ohne XML-Validierung aus. Der
 Modus ist der schnellste Check, ob Host-Classpath und isolierte KoSIT-Welt
@@ -222,6 +291,14 @@ Logging-Integration waere eine eigene Architekturentscheidung.
 - Bundle-Updates ohne Neustart brauchen eine klare Reload-Strategie.
 - ClassLoader-Caching und kontrolliertes Schliessen muessen zusammen gedacht
   werden.
+- Das Staging-Verzeichnis braucht im Betrieb einen lokal schreibbaren,
+  knotenlokalen Pfad. Bei mehreren Knoten sollte jeder Knoten sein eigenes
+  Staging bekommen; ein gemeinsam beschreibbares Netzlaufwerk waere fuer diese
+  Aufgabe unnoetig fehleranfaellig.
+- Temp-Cleanup, Restarts und Diagnoseartefakte muessen zusammen geplant werden:
+  Jars und entpackte Konfiguration duerfen nicht waehrend laufender
+  Validierungen verschwinden, sollen aber nach Versionswechseln nicht
+  unbegrenzt liegen bleiben.
 - Logging-Integration ist bewusst offen, falls Host und KoSIT-Laufzeit
   unterschiedliche SLF4J-APIs oder Bindings verwenden.
 - Austauschbare Runtime- oder Bundle-Verzeichnisse vergroessern die

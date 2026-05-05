@@ -74,6 +74,9 @@ final class ReflectiveKositValidator {
     output.put("workDir", workDir.toString());
     output.put("configurationDirectory", configuration.configDirectory.toString());
     output.put("reportPath", writtenReport != null ? writtenReport.toString() : null);
+    if (request.containsKey("stageRoot")) {
+      output.put("stageRoot", request.get("stageRoot"));
+    }
     output.put("acceptRecommendation", String.valueOf(invokeNoArg(result, "getAcceptRecommendation")));
     output.put("processingSuccessful", Boolean.valueOf(booleanValue(result, "isProcessingSuccessful")));
     output.put("wellformed", Boolean.valueOf(booleanValue(result, "isWellformed")));
@@ -90,6 +93,11 @@ final class ReflectiveKositValidator {
     Map<String, Object> output = new LinkedHashMap<String, Object>();
     output.put("status", "DIAGNOSTICS");
     output.put("runtimeLibDir", request.get("runtimeLibDir"));
+    output.put("configPath", request.get("configPath"));
+    output.put("workDir", request.get("workDir"));
+    if (request.containsKey("stageRoot")) {
+      output.put("stageRoot", request.get("stageRoot"));
+    }
     output.put("messages", new ArrayList<Map<String, Object>>());
     output.put("diagnostics", KositRuntimeDiagnostics.collect(isolatedClassLoader));
     return output;

@@ -9,10 +9,11 @@ zurueckkommt.
 {
   "status": "ACCEPTED",
   "xmlPath": "/tmp/invoice-full.xml",
-  "configPath": "bundle-docs/xrechnung-3.0.2-validator-configuration-2026-01-31.zip",
-  "workDir": "prototypes/kosit-isolated-classloader-verifier/target/validator-work",
-  "configurationDirectory": "prototypes/kosit-isolated-classloader-verifier/target/validator-work/xrechnung-3.0.2-validator-configuration-2026-01-31",
-  "reportPath": "prototypes/kosit-isolated-classloader-verifier/target/reports/invoice-full-report.xml",
+  "configPath": "/tmp/kosit-isolated-runtime-123/config/xrechnung-3.0.2-validator-configuration-2026-01-31.zip",
+  "workDir": "/tmp/kosit-isolated-runtime-123/validator-work",
+  "configurationDirectory": "/tmp/kosit-isolated-runtime-123/validator-work/xrechnung-3.0.2-validator-configuration-2026-01-31",
+  "reportPath": "/tmp/kosit-isolated-runtime-123/reports/invoice-full-report.xml",
+  "stageRoot": "/tmp/kosit-isolated-runtime-123",
   "acceptRecommendation": "ACCEPTABLE",
   "processingSuccessful": true,
   "wellformed": true,
@@ -22,7 +23,8 @@ zurueckkommt.
   "diagnostics": {
     "hostClassLoader": "...",
     "isolatedClassLoader": "...",
-    "runtimeLibDir": "prototypes/kosit-isolated-classloader-verifier/target/kosit-runtime/lib",
+    "runtimeLibDir": "/tmp/kosit-isolated-runtime-123/runtime-lib",
+    "stageRoot": "/tmp/kosit-isolated-runtime-123",
     "threadContextClassLoader": "...",
     "diagnosticsClassLoader": "...",
     "jaxpFactories": [],
@@ -44,7 +46,13 @@ zurueckkommt.
 - `configurationDirectory`
   Entpacktes Konfigurationsverzeichnis.
 - `reportPath`
-  Geschriebener XML-Report, falls KoSIT einen Report geliefert hat.
+  Geschriebener XML-Report, falls KoSIT einen Report geliefert hat. Im
+  Classpath-Ressourcenmodus kann der Default-Pfad in einem temporaeren
+  Staging-Verzeichnis liegen; fuer dauerhafte Reports sollte `--report-out`
+  gesetzt werden.
+- `stageRoot`
+  Nur im Classpath-Ressourcenmodus; lokales Staging-Verzeichnis, in das
+  Runtime-Jars und Konfigurations-ZIP kopiert wurden.
 - `acceptRecommendation`
   Direkter KoSIT-Wert, z. B. `ACCEPTABLE` oder `REJECTED`.
 - `processingSuccessful`
@@ -57,7 +65,9 @@ zurueckkommt.
 - `diagnostics`
   Nur bei `--diagnostics`; zeigt ClassLoader und CodeSource ausgewaehlter
   Konfliktklassen. Bei `--diagnostics-only` ist dies der eigentliche Inhalt des
-  Ergebnisses; es gibt dann keine Validierungsfelder wie `schemaValid`.
+  Ergebnisses; es gibt dann keine Validierungsfelder wie `schemaValid`. Im
+  Classpath-Ressourcenmodus enthalten die Diagnosen zusaetzlich `runtimeLibDir`
+  und `stageRoot`.
 
 ## Exitcodes
 

@@ -89,14 +89,9 @@ public final class IsolatedKositVerifierCli {
   }
 
   private static Map<String, Object> execute(CliOptions cliOptions) throws Exception {
-    Path moduleRoot = findModuleRoot();
-    Path repoRoot = moduleRoot.getParent().getParent();
-    Path runtimeLibDir = cliOptions.runtimeLibDir != null
-        ? cliOptions.runtimeLibDir.toAbsolutePath().normalize()
-        : moduleRoot.resolve("target/kosit-runtime/lib").toAbsolutePath().normalize();
-
-    URL[] runtimeUrls = runtimeUrls(runtimeLibDir);
     ClassLoader hostClassLoader = IsolatedKositVerifierCli.class.getClassLoader();
+    RuntimeEnvironment runtimeEnvironment = runtimeEnvironment(cliOptions, hostClassLoader);
+    URL[] runtimeUrls = runtimeUrls(runtimeEnvironment.runtimeLibDir);
     try (ChildFirstUrlClassLoader isolatedClassLoader =
              new ChildFirstUrlClassLoader(runtimeUrls, hostClassLoader)) {
       Thread thread = Thread.currentThread();
@@ -105,9 +100,9 @@ public final class IsolatedKositVerifierCli {
       try {
         ReflectiveKositValidator validator = new ReflectiveKositValidator(isolatedClassLoader);
         Map<String, Object> result = cliOptions.diagnosticsOnly
-            ? validator.diagnostics(diagnosticsRequestMap(runtimeLibDir))
-            : validator.verify(validationRequestMap(cliOptions, repoRoot, moduleRoot));
-        enrichHostDiagnostics(result, hostClassLoader, isolatedClassLoader, runtimeLibDir);
+            ? validator.diagnostics(diagnosticsRequestMap(runtimeEnvironment))
+            : validator.verify(validationRequestMap(cliOptions, runtimeEnvironment));
+        enrichHostDiagnostics(result, hostClassLoader, isolatedClassLoader, runtimeEnvironment);
         return result;
       } finally {
         thread.setContextClassLoader(previousContextClassLoader);
@@ -115,22 +110,56 @@ public final class IsolatedKositVerifierCli {
     }
   }
 
-  private static Map<String, String> validationRequestMap(
+  private static RuntimeEnvironment runtimeEnvironment(
       CliOptions cliOptions,
-      Path repoRoot,
-      Path moduleRoot) throws IOException {
-    Path xmlPath = requireRegularFile(cliOptions.xmlPath.toAbsolutePath().normalize(), "--xml");
+      ClassLoader hostClassLoader) throws IOException {
+    if (cliOptions.runtimeLibDir == null && cliOptions.configPath == null) {
+      ClasspathRuntimeStager.StagedRuntime stagedRuntime =
+          ClasspathRuntimeStager.stage(hostClassLoader, cliOptions.stageDir);
+      Path workDir = cliOptions.workDir != null
+          ? cliOptions.workDir.toAbsolutePath().normalize()
+          : stagedRuntime.workDir;
+      return new RuntimeEnvironment(
+          stagedRuntime.runtimeLibDir,
+          stagedRuntime.configZip,
+          workDir,
+          stagedRuntime.reportDir,
+          stagedRuntime.stageRoot);
+    }
+
+    Path moduleRoot = findModuleRoot();
+    Path repoRoot = moduleRoot.getParent().getParent();
+    Path runtimeLibDir = cliOptions.runtimeLibDir != null
+        ? cliOptions.runtimeLibDir.toAbsolutePath().normalize()
+        : moduleRoot.resolve("target/kosit-runtime/lib").toAbsolutePath().normalize();
     Path configPath = cliOptions.configPath != null
         ? requireRegularFile(cliOptions.configPath.toAbsolutePath().normalize(), "--config")
         : findConfigZip(repoRoot);
     Path workDir = cliOptions.workDir != null
         ? cliOptions.workDir.toAbsolutePath().normalize()
         : moduleRoot.resolve("target/validator-work").toAbsolutePath().normalize();
+    Path reportDir = moduleRoot.resolve("target/reports").toAbsolutePath().normalize();
+    return new RuntimeEnvironment(runtimeLibDir, configPath, workDir, reportDir, null);
+  }
+
+  private static Map<String, String> validationRequestMap(
+      CliOptions cliOptions,
+      RuntimeEnvironment runtimeEnvironment) {
+    Path xmlPath = requireRegularFile(cliOptions.xmlPath.toAbsolutePath().normalize(), "--xml");
     Path reportOut = cliOptions.reportOut != null
         ? cliOptions.reportOut.toAbsolutePath().normalize()
-        : moduleRoot.resolve("target/reports/" + stripExtension(xmlPath.getFileName().toString())
+        : runtimeEnvironment.reportDir.resolve(stripExtension(xmlPath.getFileName().toString())
             + "-report.xml").toAbsolutePath().normalize();
-    return requestMap(xmlPath, configPath, workDir, reportOut, cliOptions.diagnostics);
+    Map<String, String> request = requestMap(
+        xmlPath,
+        runtimeEnvironment.configPath,
+        runtimeEnvironment.workDir,
+        reportOut,
+        cliOptions.diagnostics);
+    if (runtimeEnvironment.stageRoot != null) {
+      request.put("stageRoot", runtimeEnvironment.stageRoot.toString());
+    }
+    return request;
   }
 
   private static Map<String, String> requestMap(
@@ -148,9 +177,14 @@ public final class IsolatedKositVerifierCli {
     return request;
   }
 
-  private static Map<String, String> diagnosticsRequestMap(Path runtimeLibDir) {
+  private static Map<String, String> diagnosticsRequestMap(RuntimeEnvironment runtimeEnvironment) {
     Map<String, String> request = new LinkedHashMap<String, String>();
-    request.put("runtimeLibDir", runtimeLibDir.toString());
+    request.put("runtimeLibDir", runtimeEnvironment.runtimeLibDir.toString());
+    request.put("configPath", runtimeEnvironment.configPath.toString());
+    request.put("workDir", runtimeEnvironment.workDir.toString());
+    if (runtimeEnvironment.stageRoot != null) {
+      request.put("stageRoot", runtimeEnvironment.stageRoot.toString());
+    }
     request.put("diagnostics", Boolean.TRUE.toString());
     return request;
   }
@@ -160,7 +194,7 @@ public final class IsolatedKositVerifierCli {
       Map<String, Object> result,
       ClassLoader hostClassLoader,
       ClassLoader isolatedClassLoader,
-      Path runtimeLibDir) {
+      RuntimeEnvironment runtimeEnvironment) {
     Object rawDiagnostics = result.get("diagnostics");
     if (!(rawDiagnostics instanceof Map<?, ?>)) {
       return;
@@ -168,7 +202,10 @@ public final class IsolatedKositVerifierCli {
     Map<String, Object> diagnostics = (Map<String, Object>) rawDiagnostics;
     diagnostics.put("hostClassLoader", describeClassLoader(hostClassLoader));
     diagnostics.put("isolatedClassLoader", describeClassLoader(isolatedClassLoader));
-    diagnostics.put("runtimeLibDir", runtimeLibDir.toString());
+    diagnostics.put("runtimeLibDir", runtimeEnvironment.runtimeLibDir.toString());
+    if (runtimeEnvironment.stageRoot != null) {
+      diagnostics.put("stageRoot", runtimeEnvironment.stageRoot.toString());
+    }
   }
 
   private static URL[] runtimeUrls(Path runtimeLibDir) throws IOException {
@@ -325,12 +362,34 @@ public final class IsolatedKositVerifierCli {
         + "  --xml <path>                XML file to validate\n"
         + "  --diagnostics-only          Load isolated runtime and print diagnostics only\n"
         + "  --config <zip>              XRechnung validator configuration ZIP\n"
-        + "  --runtime-lib-dir <path>    Isolated runtime jars, default target/kosit-runtime/lib\n"
-        + "  --work-dir <path>           Extraction work dir, default target/validator-work\n"
-        + "  --report-out <path>         XML report path, default target/reports/<xml>-report.xml\n"
+        + "  --runtime-lib-dir <path>    Isolated runtime jars; otherwise staged from classpath resources\n"
+        + "  --stage-dir <path>          Classpath resource staging dir, default temporary directory\n"
+        + "  --work-dir <path>           Extraction work dir, default stage or target/validator-work\n"
+        + "  --report-out <path>         XML report path, default stage or target/reports/<xml>-report.xml\n"
         + "  --json-out <path>           Optional JSON result path\n"
         + "  --diagnostics               Include ClassLoader and code-source diagnostics\n"
         + "  --help                      Show this help\n";
+  }
+
+  private static final class RuntimeEnvironment {
+    private final Path runtimeLibDir;
+    private final Path configPath;
+    private final Path workDir;
+    private final Path reportDir;
+    private final Path stageRoot;
+
+    private RuntimeEnvironment(
+        Path runtimeLibDir,
+        Path configPath,
+        Path workDir,
+        Path reportDir,
+        Path stageRoot) {
+      this.runtimeLibDir = runtimeLibDir;
+      this.configPath = configPath;
+      this.workDir = workDir;
+      this.reportDir = reportDir;
+      this.stageRoot = stageRoot;
+    }
   }
 
   private static final class CliOptions {
@@ -340,6 +399,7 @@ public final class IsolatedKositVerifierCli {
     private Path xmlPath;
     private Path configPath;
     private Path runtimeLibDir;
+    private Path stageDir;
     private Path workDir;
     private Path reportOut;
     private Path jsonOut;
@@ -361,6 +421,8 @@ public final class IsolatedKositVerifierCli {
           options.configPath = pathValue(args, ++index, arg);
         } else if ("--runtime-lib-dir".equals(arg)) {
           options.runtimeLibDir = pathValue(args, ++index, arg);
+        } else if ("--stage-dir".equals(arg)) {
+          options.stageDir = pathValue(args, ++index, arg);
         } else if ("--work-dir".equals(arg)) {
           options.workDir = pathValue(args, ++index, arg);
         } else if ("--report-out".equals(arg)) {
@@ -373,6 +435,11 @@ public final class IsolatedKositVerifierCli {
       }
       if (!options.help && !options.diagnosticsOnly && options.xmlPath == null) {
         throw new IllegalArgumentException("Missing required --xml <path>");
+      }
+      if (options.stageDir != null
+          && (options.runtimeLibDir != null || options.configPath != null)) {
+        throw new IllegalArgumentException(
+            "--stage-dir can only be used with classpath runtime resources");
       }
       return options;
     }

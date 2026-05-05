@@ -23,5 +23,6 @@
     <jaxb-runtime.version>4.0.6</jaxb-runtime.version>
     <slf4j.version>2.0.17</slf4j.version>
     <jackson.version>3.0.3</jackson.version>
+    <validator.config.filename>xrechnung-3.0.2-validator-configuration-2026-01-31.zip</validator.config.filename>
   </properties>
 </project>

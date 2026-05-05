@@ -127,6 +127,21 @@
         <version>3.2.0</version>
         <executions>
           <execution>
+            <id>clean-classpath-runtime-resources</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.outputDirectory}/kosit-isolated</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+          <execution>
             <id>clean-isolated-runtime-lib</id>
             <phase>prepare-package</phase>
             <goals>
@@ -146,9 +161,47 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>copy-classpath-validator-config</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}/kosit-isolated/config</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/../../bundle-docs</directory>
+                  <includes>
+                    <include>${validator.config.filename}</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>3.8.1</version>
         <executions>
+          <execution>
+            <id>copy-classpath-runtime-dependencies</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <excludeGroupIds>tools.jackson.core,com.fasterxml.jackson.core</excludeGroupIds>
+              <outputDirectory>${project.build.outputDirectory}/kosit-isolated/runtime-lib</outputDirectory>
+            </configuration>
+          </execution>
           <execution>
             <id>copy-isolated-runtime-dependencies</id>
             <phase>package</phase>
@@ -159,6 +212,30 @@
               <includeScope>runtime</includeScope>
               <excludeGroupIds>tools.jackson.core,com.fasterxml.jackson.core</excludeGroupIds>
               <outputDirectory>${project.parent.basedir}/target/kosit-runtime/lib</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>write-runtime-jar-manifest</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <pathconvert pathsep="${line.separator}" property="kosit.runtime.jar.list">
+                  <fileset dir="${project.build.outputDirectory}/kosit-isolated/runtime-lib" includes="*.jar" />
+                  <mapper type="flatten" />
+                </pathconvert>
+                <echo file="${project.build.outputDirectory}/kosit-isolated/runtime-jars.list">${kosit.runtime.jar.list}${line.separator}</echo>
+              </target>
             </configuration>
           </execution>
         </executions>

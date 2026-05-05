@@ -1,21 +1,49 @@
 # ClassLoader Strategy
 
 Dieser Prototyp zeigt Same-VM-Isolation: Der Host startet keinen Prozess und
-keinen Dienst, sondern laedt die KoSIT-Welt zur Laufzeit aus
-`target/kosit-runtime/lib/` in einen eigenen `URLClassLoader`.
+keinen Dienst, sondern laedt die KoSIT-Welt zur Laufzeit aus einem lokalen
+Staging-Verzeichnis in einen eigenen `URLClassLoader`.
 
 ## Artefakte
 
 - `target/kosit-isolated-classloader-verifier.jar`
-  enthaelt nur Host-Code.
+  enthaelt Host-Code, Jackson fuer Host-JSON und die KoSIT-Runtime als
+  Classpath-Ressourcen.
+- `kosit-isolated/runtime-lib/*.jar`
+  liegt im Host-Jar und enthaelt KoSIT `1.6.2` samt Runtime-Dependencies.
+- `kosit-isolated/runtime-jars.list`
+  liegt im Host-Jar und listet die Ressourcen-Jars, die gestaged werden muessen.
+- `kosit-isolated/config/*.zip`
+  liegt im Host-Jar und enthaelt die XRechnung-Validator-Konfiguration.
 - `target/kosit-runtime/lib/*.jar`
-  enthaelt KoSIT `1.6.2` und dessen Runtime-Dependencies, darunter Saxon-HE
-  `12.9`, XMLResolver, JAXB `4.x`, commons-lang3, commons-io und SLF4J.
+  enthaelt dieselben KoSIT-Runtime-Jars fuer den expliziten
+  Dateisystem-Modus.
 
 Der Host-Code hat keine KoSIT-, Saxon-, JAXB- oder XMLResolver-Dependency im
 Compile-Classpath. Das Maven-Modul deklariert diese Abhaengigkeiten mit
-Runtime-Scope, damit sie beim Build in das isolierte Runtime-Verzeichnis kopiert
-werden. Der Aufruf der KoSIT-API passiert anschliessend reflektiv.
+Runtime-Scope, damit sie beim Build als Classpath-Ressourcen und optional nach
+`target/kosit-runtime/lib/` kopiert werden. Der Aufruf der KoSIT-API passiert
+anschliessend reflektiv.
+
+## Classpath-Staging
+
+Wenn weder `--runtime-lib-dir` noch `--config` gesetzt sind, nutzt die CLI den
+Classpath-Ressourcenmodus:
+
+- `ClasspathRuntimeStager` liest `kosit-isolated/runtime-jars.list`.
+- Jede dort genannte Jar wird aus `kosit-isolated/runtime-lib/` in
+  `<stage>/runtime-lib/` kopiert.
+- Das Konfigurations-ZIP wird aus `kosit-isolated/config/` nach
+  `<stage>/config/` kopiert.
+- Das Arbeitsverzeichnis fuer die entpackte Konfiguration ist per Default
+  `<stage>/validator-work/`.
+- Der isolierte `URLClassLoader` bekommt nur URLs auf die kopierten Jars im
+  Staging-Verzeichnis.
+
+Der Default-Stage liegt in einem temporaeren Verzeichnis und wird in der JVM
+gecached. Mit `--stage-dir` kann ein stabiler, lokal kontrollierter Pfad
+vorgegeben werden. Fuer den Produktionsbetrieb sollte dieser Pfad knotenlokal,
+schreibbar und in die lokale Cleanup-Strategie eingebunden sein.
 
 ## Parent-First
 
@@ -92,6 +120,11 @@ Fuer jede Klasse werden ClassLoader, CodeSource und nach Moeglichkeit die
 Version ausgegeben. Bei Saxon wird zusaetzlich `Version.getProductVersion()`
 ausgelesen, damit sichtbar ist, dass nicht versehentlich eine global
 bereitgestellte Saxon-Version verwendet wird.
+
+Im Classpath-Ressourcenmodus sollten die CodeSources auf das Staging zeigen,
+etwa `file:/tmp/kosit-isolated-runtime-.../runtime-lib/Saxon-HE-12.9.jar`. Im
+expliziten Dateisystem-Modus sollten sie auf das uebergebene
+`--runtime-lib-dir` zeigen.
 
 Zusaetzlich werden der aktuelle
 `Thread.currentThread().getContextClassLoader()` und exemplarische
